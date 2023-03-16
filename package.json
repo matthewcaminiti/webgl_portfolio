@@ -1,0 +1,17 @@
+{
+  "name": "webgl_portfolio",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+	"dev": "webpack -w --mode=development",
+	"build:dev": "webpack --mode=development",
+	"build:prod": "webpack --mode=production"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "ts-loader": "^9.4.2",
+    "typescript": "^4.9.5",
+    "webpack": "^5.76.2",
+    "webpack-cli": "^5.0.1"
+  }
+}
