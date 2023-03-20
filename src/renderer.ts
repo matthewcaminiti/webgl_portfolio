@@ -218,6 +218,48 @@ export class Renderer {
 		)
 	}
 
+	drawCells(nx: number, cells: Array<number>) {
+		const cellWidth = Math.floor(this.h / nx)
+		const cellHeight = cellWidth
+		let indices: Array<number> = []
+		for (let i = 0; i < cells.length; i++) {
+			if (!cells[i]) continue
+
+			const x = (i % nx) * cellWidth
+			const y = Math.floor(i / nx) * cellHeight
+			indices.push(
+				x, y,
+				x + cellWidth, y,
+				x + cellWidth, y + cellHeight,
+				x, y,
+				x, y + cellWidth,
+				x + cellWidth, y + cellHeight,
+			)
+		}
+
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
+		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
+
+		this.gl.vertexAttribPointer(
+			this.attributes["a_position"], // location
+			2, // size (num values to pull from buffer per iteration)
+			this.gl.FLOAT, // type of data in buffer
+			false, // normalize
+			0, // stride (0 = compute from size and type above)
+			0 // offset in buffer
+		)
+
+		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+
+		this.gl.uniform4f(this.uniforms["u_color"], .5, .5, .5, 1)
+
+		this.gl.drawArrays(
+			this.gl.TRIANGLES,
+			0, // offset
+			indices.length/2 // num vertices per instance
+		)
+	}
+
 	drawPlayer(player: Player) {
 		const _r = Math.floor(player.r * 0.8)
 		const steps = _r <= 10 ? 10 : _r

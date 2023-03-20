@@ -23,7 +23,7 @@ export class Solver {
 		this.w = w
 		this.h = h
 		this.cells = cells
-		this.player = new Player(w/4, h/2, 0, 15)
+		this.player = new Player(w/4, h/2, 0, Math.floor(h/Math.sqrt(cells.length)) / 2)
 		this.keys = {
 			"KeyQ": false,
 			"KeyW": false,
