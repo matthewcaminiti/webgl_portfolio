@@ -185,7 +185,7 @@ export class Renderer {
 	}
 
 	drawGrid(nx: number, ny: number) {
-		const cellWidth = Math.floor(this.w * 0.6 / nx)
+		const cellWidth = Math.floor(this.h / nx)
 		const cellHeight = cellWidth
 		let indices: Array<number> = []
 		for (let i = 0; i <= nx; i++) {
