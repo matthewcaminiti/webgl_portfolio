@@ -184,9 +184,7 @@ export class Renderer {
 		)
 	}
 
-	drawGrid(nx: number, ny: number) {
-		const cellWidth = Math.floor(this.h / nx)
-		const cellHeight = cellWidth
+	drawGrid(nx: number, ny: number, cellWidth: number, cellHeight: number) {
 		let indices: Array<number> = []
 		for (let i = 0; i <= nx; i++) {
 			indices.push(i * cellWidth, 0, i * cellWidth, ny * cellHeight)
@@ -218,9 +216,7 @@ export class Renderer {
 		)
 	}
 
-	drawCells(nx: number, cells: Array<number>) {
-		const cellWidth = Math.floor(this.h / nx)
-		const cellHeight = cellWidth
+	drawCells(nx: number, cellWidth: number, cellHeight: number, cells: Array<number>) {
 		let indices: Array<number> = []
 		for (let i = 0; i < cells.length; i++) {
 			if (!cells[i]) continue
