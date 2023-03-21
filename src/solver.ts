@@ -8,7 +8,7 @@ export class Player {
 		this.pos = {x, y}
 		this.dirRad = dirRad
 		this.r = r
-		this.v = 100
+		this.v = 150
 	}
 }
 
@@ -144,10 +144,13 @@ export class Solver {
 
 		const playerCellIdx = row * this.nx + col
 
+		// order top, left, center, right, bottom first! avoids corner blocking
 		const cellIdxs = [
-			playerCellIdx - this.nx - 1, playerCellIdx - this.nx, playerCellIdx - this.nx + 1,
+			playerCellIdx - this.nx,
 			playerCellIdx - 1, playerCellIdx, playerCellIdx + 1,
-			playerCellIdx + this.nx - 1, playerCellIdx + this.nx, playerCellIdx + this.nx + 1,
+			playerCellIdx + this.nx,
+			playerCellIdx - this.nx - 1,  playerCellIdx - this.nx + 1,
+			playerCellIdx + this.nx - 1, playerCellIdx + this.nx + 1,
 		]
 
 		cellIdxs.forEach((i) => {
@@ -207,5 +210,11 @@ export class Solver {
 			else
 				this.player.pos.x += xd
 		})
+	}
+
+	castRays() {
+		// get line from player pos+dir
+		// check all grid lines, vertical and horizontal, in direction of line
+		// every intersection, check if intersection's adject cell is wall
 	}
 }
