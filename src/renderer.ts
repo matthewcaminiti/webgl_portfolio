@@ -1,6 +1,7 @@
 import {resizeCanvasToDisplaySize} from "./canvas"
 import {degToRad} from "./util"
 import {Player} from "./solver"
+import {Vec2} from "./math"
 
 export class Renderer {
 	gl: WebGLRenderingContext
@@ -330,6 +331,55 @@ export class Renderer {
 			this.gl.LINES,
 			0, // offset
 			dirLineIndices.length/2 // num vertices per instance
+		)
+	}
+
+	drawRay(v: Vec2, playerPos: Vec2) {
+		const circlePos = playerPos.add(v)
+
+		const r = 5
+		const _r = Math.floor(r * 0.8)
+		const steps = _r <= 10 ? 10 : _r
+		let indices: Array<number> = Array(steps*6).map(() => 0)
+
+		let prevPoint = {x : circlePos.x + r, y: circlePos.y}
+		for (let i = 1; i <= steps; i++) {
+			// push origin, prev point, next point
+			let newX = r * Math.cos(degToRad((360/steps) * i)) + circlePos.x
+			let newY = r * Math.sin(degToRad((360/steps) * i)) + circlePos.y
+
+			let adjIdx = (i - 1) * 6
+			indices[adjIdx] = circlePos.x
+			indices[adjIdx + 1] = circlePos.y
+			indices[adjIdx + 2] = prevPoint.x
+			indices[adjIdx + 3] = prevPoint.y
+			indices[adjIdx + 4] = newX
+			indices[adjIdx + 5] = newY
+
+			prevPoint.x = newX
+			prevPoint.y = newY
+		}
+
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
+		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
+
+		this.gl.vertexAttribPointer(
+			this.attributes["a_position"], // location
+			2, // size (num values to pull from buffer per iteration)
+			this.gl.FLOAT, // type of data in buffer
+			false, // normalize
+			0, // stride (0 = compute from size and type above)
+			0 // offset in buffer
+		)
+
+		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+
+		this.gl.uniform4f(this.uniforms["u_color"], 0.95, 0.95, 0.95, 1)
+
+		this.gl.drawArrays(
+			this.gl.TRIANGLES,
+			0, // offset
+			indices.length/2 // num vertices per instance
 		)
 	}
 }

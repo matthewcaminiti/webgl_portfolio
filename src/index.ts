@@ -16,6 +16,7 @@ const main = () => {
 
 	solver.bindControls()
 
+	let ctr = 0
 	let then = 0
 	const drawScene = (time: number) => {
 		time *= 0.001
@@ -27,14 +28,17 @@ const main = () => {
 		solver.executeControls(dt)
 		solver.applyPlayerConstraints()
 		solver.collidePlayer()
+		const ray = solver.castRays()
 
 		renderer.drawGrid(solver.nx, solver.ny, solver.cellWidth, solver.cellHeight)
 		renderer.drawCells(solver.nx, solver.cellWidth, solver.cellHeight, solver.cells)
 
 		renderer.drawTriangle()
 		renderer.drawPlayer(solver.player)
+		renderer.drawRay(ray, solver.player.pos)
 
 		requestAnimationFrame(drawScene)
+		ctr++
 	}
 
 	drawScene(0)

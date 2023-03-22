@@ -1,14 +1,18 @@
+import {Vec2} from "./math"
+
 export class Player {
-	pos: {x: number, y: number}
+	pos: Vec2
 	dirRad: number
 	r: number
 	v: number
+	turnSpeedRad: number
 
 	constructor(x: number, y: number, dirRad: number, r: number) {
-		this.pos = {x, y}
+		this.pos = new Vec2(x, y)
 		this.dirRad = dirRad
 		this.r = r
 		this.v = 150
+		this.turnSpeedRad = 3.0
 	}
 }
 
@@ -86,8 +90,6 @@ export class Solver {
 	}
 
 	executeControls(dt: number) {
-		const turnRateRad = 4.0
-
 		Object.entries(this.keys).forEach(([keyname, isDown]) => {
 			if (!isDown) return
 
@@ -105,14 +107,14 @@ export class Solver {
 					this.player.pos.y += Math.sin(this.player.dirRad + Math.PI/2) * this.player.v * dt
 					break
 				case "KeyA":
-					this.player.dirRad -= turnRateRad * dt
+					this.player.dirRad -= this.player.turnSpeedRad * dt
 					break
 				case "KeyS":
 					this.player.pos.x -= Math.cos(this.player.dirRad) * this.player.v * dt
 					this.player.pos.y -= Math.sin(this.player.dirRad) * this.player.v * dt
 					break
 				case "KeyD":
-					this.player.dirRad += turnRateRad * dt
+					this.player.dirRad += this.player.turnSpeedRad * dt
 					break
 				default:
 					break
@@ -212,9 +214,75 @@ export class Solver {
 		})
 	}
 
-	castRays() {
+	castRays(): Vec2 {
 		// get line from player pos+dir
 		// check all grid lines, vertical and horizontal, in direction of line
-		// every intersection, check if intersection's adject cell is wall
+		// get dist of ray to next x-line and y-line, check closest, then re-calc dist
+		const normd = new Vec2(
+			Math.cos(this.player.dirRad),
+			Math.sin(this.player.dirRad),
+		)
+		const h = normd.x >= 0 ? 1 : -1
+		const v = normd.y >= 0 ? 1 : -1
+
+		const pcol = Math.floor(this.player.pos.x / this.cellWidth)
+		const prow = Math.floor(this.player.pos.y / this.cellHeight)
+
+		const playerCellIdx = prow * this.nx + pcol
+
+		let nextXi = h > 0 ? playerCellIdx + 1 : playerCellIdx
+		let nextYi = v > 0 ? playerCellIdx + this.nx : playerCellIdx
+
+		const playerDirTan = Math.tan(this.player.dirRad)
+
+		const nextdx = (nextXi % this.nx) * this.cellWidth - this.player.pos.x
+		const rx = new Vec2(
+			nextdx,
+			nextdx * playerDirTan
+		)
+
+		const nextdy = Math.floor(nextYi / this.ny) * this.cellHeight - this.player.pos.y
+		const ry = new Vec2(
+			nextdy / playerDirTan,
+			nextdy
+		)
+
+		const rayLenMax = 250
+
+		while (true) {
+			// whichever has less dist (rx/ry), check if (rx/ry) touching wall
+			// if wall, return ray
+			// if not wall, recalc (rx/ry) and set (rx/ry)
+			const magx = rx.mag
+			const magy = ry.mag
+
+			if (magx > rayLenMax && magy > rayLenMax) return normd.scale(rayLenMax)
+
+			if (magx <= magy) {
+				const col = Math.floor((rx.x + this.player.pos.x + h) / this.cellWidth)
+				const row = Math.floor((rx.y + this.player.pos.y + v) / this.cellHeight)
+
+				const cellIdx = row * this.nx + col
+				if (this.cells[cellIdx]) {
+					// hit wall, exit
+					return rx
+				}
+
+				rx.x += this.cellWidth*h
+				rx.y = rx.x * playerDirTan
+			} else {
+				const col = Math.floor((ry.x + this.player.pos.x + h) / this.cellWidth)
+				const row = Math.floor((ry.y + this.player.pos.y + v) / this.cellHeight)
+
+				const cellIdx = row * this.nx + col
+				if (this.cells[cellIdx]) {
+					// hit wall, exit
+					return ry
+				}
+
+				ry.y += this.cellHeight*v
+				ry.x = ry.y / playerDirTan
+			}
+		}
 	}
 }
