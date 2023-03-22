@@ -28,14 +28,14 @@ const main = () => {
 		solver.executeControls(dt)
 		solver.applyPlayerConstraints()
 		solver.collidePlayer()
-		const ray = solver.castRays()
+		const rays = solver.castRays()
 
 		renderer.drawGrid(solver.nx, solver.ny, solver.cellWidth, solver.cellHeight)
 		renderer.drawCells(solver.nx, solver.cellWidth, solver.cellHeight, solver.cells)
 
 		renderer.drawTriangle()
 		renderer.drawPlayer(solver.player)
-		renderer.drawRay(ray, solver.player.pos)
+		renderer.drawRays(solver.player.pos, rays)
 
 		requestAnimationFrame(drawScene)
 		ctr++

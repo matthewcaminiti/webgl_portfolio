@@ -214,40 +214,38 @@ export class Solver {
 		})
 	}
 
-	castRays(): Vec2 {
+	castRay(origin: Vec2, dirRad: number, maxDist: number): Vec2 {
 		// get line from player pos+dir
 		// check all grid lines, vertical and horizontal, in direction of line
 		// get dist of ray to next x-line and y-line, check closest, then re-calc dist
 		const normd = new Vec2(
-			Math.cos(this.player.dirRad),
-			Math.sin(this.player.dirRad),
+			Math.cos(dirRad),
+			Math.sin(dirRad),
 		)
 		const h = normd.x >= 0 ? 1 : -1
 		const v = normd.y >= 0 ? 1 : -1
 
-		const pcol = Math.floor(this.player.pos.x / this.cellWidth)
-		const prow = Math.floor(this.player.pos.y / this.cellHeight)
+		const pcol = Math.floor(origin.x / this.cellWidth)
+		const prow = Math.floor(origin.y / this.cellHeight)
 
 		const playerCellIdx = prow * this.nx + pcol
 
 		let nextXi = h > 0 ? playerCellIdx + 1 : playerCellIdx
 		let nextYi = v > 0 ? playerCellIdx + this.nx : playerCellIdx
 
-		const playerDirTan = Math.tan(this.player.dirRad)
+		const playerDirTan = Math.tan(dirRad)
 
-		const nextdx = (nextXi % this.nx) * this.cellWidth - this.player.pos.x
+		const nextdx = (nextXi % this.nx) * this.cellWidth - origin.x
 		const rx = new Vec2(
 			nextdx,
 			nextdx * playerDirTan
 		)
 
-		const nextdy = Math.floor(nextYi / this.ny) * this.cellHeight - this.player.pos.y
+		const nextdy = Math.floor(nextYi / this.ny) * this.cellHeight - origin.y
 		const ry = new Vec2(
 			nextdy / playerDirTan,
 			nextdy
 		)
-
-		const rayLenMax = 250
 
 		while (true) {
 			// whichever has less dist (rx/ry), check if (rx/ry) touching wall
@@ -256,11 +254,11 @@ export class Solver {
 			const magx = rx.mag
 			const magy = ry.mag
 
-			if (magx > rayLenMax && magy > rayLenMax) return normd.scale(rayLenMax)
+			if (magx > maxDist && magy > maxDist) return normd.scale(maxDist)
 
 			if (magx <= magy) {
-				const col = Math.floor((rx.x + this.player.pos.x + h) / this.cellWidth)
-				const row = Math.floor((rx.y + this.player.pos.y + v) / this.cellHeight)
+				const col = Math.floor((rx.x + origin.x + h) / this.cellWidth)
+				const row = Math.floor((rx.y + origin.y + v) / this.cellHeight)
 
 				const cellIdx = row * this.nx + col
 				if (this.cells[cellIdx]) {
@@ -271,8 +269,8 @@ export class Solver {
 				rx.x += this.cellWidth*h
 				rx.y = rx.x * playerDirTan
 			} else {
-				const col = Math.floor((ry.x + this.player.pos.x + h) / this.cellWidth)
-				const row = Math.floor((ry.y + this.player.pos.y + v) / this.cellHeight)
+				const col = Math.floor((ry.x + origin.x + h) / this.cellWidth)
+				const row = Math.floor((ry.y + origin.y + v) / this.cellHeight)
 
 				const cellIdx = row * this.nx + col
 				if (this.cells[cellIdx]) {
@@ -284,5 +282,15 @@ export class Solver {
 				ry.x = ry.y / playerDirTan
 			}
 		}
+	}
+
+	castRays(): Array<Vec2> {
+		let rays: Array<Vec2> = []
+
+		for (let rot = Math.PI / -4; rot <= Math.PI / 4; rot += 0.01) {
+			rays.push(this.castRay(this.player.pos, this.player.dirRad + rot, 250))
+		}
+
+		return rays
 	}
 }

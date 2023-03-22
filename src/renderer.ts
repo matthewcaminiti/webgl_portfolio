@@ -337,7 +337,7 @@ export class Renderer {
 	drawRay(v: Vec2, playerPos: Vec2) {
 		const circlePos = playerPos.add(v)
 
-		const r = 5
+		const r = 2
 		const _r = Math.floor(r * 0.8)
 		const steps = _r <= 10 ? 10 : _r
 		let indices: Array<number> = Array(steps*6).map(() => 0)
@@ -381,5 +381,11 @@ export class Renderer {
 			0, // offset
 			indices.length/2 // num vertices per instance
 		)
+	}
+
+	drawRays(origin: Vec2, rays: Array<Vec2>) {
+		rays.forEach((ray) => {
+			this.drawRay(origin, ray)
+		})
 	}
 }
