@@ -155,36 +155,6 @@ export class Renderer {
 		return program
 	}
 
-	drawTriangle() {
-		const indices = [
-			0, 0,
-			50, 0,
-			50, 50
-		]
-
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
-
-		this.gl.vertexAttribPointer(
-			this.attributes["a_position"], // location
-			2, // size (num values to pull from buffer per iteration)
-			this.gl.FLOAT, // type of data in buffer
-			false, // normalize
-			0, // stride (0 = compute from size and type above)
-			0 // offset in buffer
-		)
-
-		this.gl.enableVertexAttribArray(this.attributes["a_position"])
-
-		this.gl.uniform4f(this.uniforms["u_color"], 0, 1, 0, 1)
-
-		this.gl.drawArrays(
-			this.gl.TRIANGLES,
-			0, // offset
-			indices.length/2 // num vertices per instance
-		)
-	}
-
 	drawGrid(nx: number, ny: number, cellWidth: number, cellHeight: number) {
 		let indices: Array<number> = []
 		for (let i = 0; i <= nx; i++) {

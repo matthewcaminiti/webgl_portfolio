@@ -16,9 +16,37 @@
 		height: 100%;
 		display: block;
 	}
+
+	.stat-row {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+	}
+
 	</style>
 </head>
 <body style="background-color:#18191a;">
+	<div style="position: fixed; top: 1rem; right: 1rem; width: 12rem; color: white; background-color: rgba(0, 0, 0, 0.8); font-weight: bold; display: flex; flex-direction: column;">
+		<div id="stat-inner">
+			<div class="stat-row">
+				<div id="fps-ele">0.00</div>
+				<div>FPS</div>
+			</div>
+			<div class="stat-row">
+				<div id="solver-ele">0.00</div>
+				<div>solver</div>
+			</div>
+			<div class="stat-row">
+				<div id="render-ele">0.00</div>
+				<div>render</div>
+			</div>
+			<div class="stat-row">
+				<div id="unknown-ele">0.00</div>
+				<div>unknown</div>
+			</div>
+		</div>
+	</div>
+
 	<canvas id="canvas" width="400" height="300" tabindex="0"></canvas>
 <body>
 

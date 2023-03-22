@@ -1,5 +1,6 @@
 import {Renderer} from "./renderer"
-import { Solver } from "./solver"
+import {Solver} from "./solver"
+import {PerfWindow} from "./ui"
 
 const main = () => {
 	console.log("main")
@@ -14,31 +15,38 @@ const main = () => {
 
 	const solver = new Solver(renderer.w, renderer.h)
 
+	const perfWindow = new PerfWindow()
+
 	solver.bindControls()
 
-	let ctr = 0
 	let then = 0
 	const drawScene = (time: number) => {
 		time *= 0.001
 		const dt = Math.abs(then - time)
 		then = time
+	
+		perfWindow.addFps(1 / dt)
 
 		renderer.refreshCanvas()
 
+		let start = performance.now()
 		solver.executeControls(dt)
 		solver.applyPlayerConstraints()
 		solver.collidePlayer()
 		const rays = solver.castRays()
+		perfWindow.addSolverTime(performance.now() - start)
 
+		start = performance.now()
 		renderer.drawGrid(solver.nx, solver.ny, solver.cellWidth, solver.cellHeight)
 		renderer.drawCells(solver.nx, solver.cellWidth, solver.cellHeight, solver.cells)
 
-		renderer.drawTriangle()
 		renderer.drawPlayer(solver.player)
 		renderer.drawRays(solver.player.pos, rays)
+		perfWindow.addRenderTime(performance.now() - start)
+
+		perfWindow.update(dt)
 
 		requestAnimationFrame(drawScene)
-		ctr++
 	}
 
 	drawScene(0)
