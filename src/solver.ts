@@ -287,7 +287,12 @@ export class Solver {
 	castRays(): Array<Vec2> {
 		let rays: Array<Vec2> = []
 
-		for (let rot = Math.PI / -4; rot <= Math.PI / 4; rot += 0.01) {
+		const nRays = 420
+
+		const radRange = Math.PI / 2
+		const radIncr = radRange / nRays
+
+		for (let rot = radRange / -2; rot <= radRange / 2; rot += radIncr) {
 			rays.push(this.castRay(this.player.pos, this.player.dirRad + rot, 250))
 		}
 
