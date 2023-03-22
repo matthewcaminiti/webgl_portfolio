@@ -215,13 +215,11 @@ export class Solver {
 	}
 
 	castRay(origin: Vec2, dirRad: number, maxDist: number): Vec2 {
-		// get line from player pos+dir
-		// check all grid lines, vertical and horizontal, in direction of line
-		// get dist of ray to next x-line and y-line, check closest, then re-calc dist
 		const normd = new Vec2(
 			Math.cos(dirRad),
 			Math.sin(dirRad),
 		)
+
 		const h = normd.x >= 0 ? 1 : -1
 		const v = normd.y >= 0 ? 1 : -1
 
@@ -256,25 +254,25 @@ export class Solver {
 
 			if (magx > maxDist && magy > maxDist) return normd.scale(maxDist)
 
+			// fudge for smoothing out cell clamping, EPSILON too small, idk
+			const fudge = 0.0000001
 			if (magx <= magy) {
-				const col = Math.floor((rx.x + origin.x + h) / this.cellWidth)
-				const row = Math.floor((rx.y + origin.y + v) / this.cellHeight)
+				const col = Math.floor((rx.x + origin.x + h * fudge) / this.cellWidth)
+				const row = Math.floor((rx.y + origin.y + v * fudge) / this.cellHeight)
 
 				const cellIdx = row * this.nx + col
 				if (this.cells[cellIdx]) {
-					// hit wall, exit
 					return rx
 				}
 
 				rx.x += this.cellWidth*h
 				rx.y = rx.x * playerDirTan
 			} else {
-				const col = Math.floor((ry.x + origin.x + h) / this.cellWidth)
-				const row = Math.floor((ry.y + origin.y + v) / this.cellHeight)
+				const col = Math.floor((ry.x + origin.x + h * fudge) / this.cellWidth)
+				const row = Math.floor((ry.y + origin.y + v * fudge) / this.cellHeight)
 
 				const cellIdx = row * this.nx + col
 				if (this.cells[cellIdx]) {
-					// hit wall, exit
 					return ry
 				}
 
