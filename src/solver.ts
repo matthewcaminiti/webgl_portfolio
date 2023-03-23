@@ -254,11 +254,9 @@ export class Solver {
 
 			if (magx > maxDist && magy > maxDist) return normd.scale(maxDist)
 
-			// fudge for smoothing out cell clamping, EPSILON too small, idk
-			const fudge = 0.0000001
 			if (magx <= magy) {
-				const col = Math.floor((rx.x + origin.x + h * fudge) / this.cellWidth)
-				const row = Math.floor((rx.y + origin.y + v * fudge) / this.cellHeight)
+				const col = Math.floor((rx.x + origin.x + h) / this.cellWidth)
+				const row = Math.floor((rx.y + origin.y) / this.cellHeight)
 
 				const cellIdx = row * this.nx + col
 				if (this.cells[cellIdx]) {
@@ -268,8 +266,8 @@ export class Solver {
 				rx.x += this.cellWidth*h
 				rx.y = rx.x * playerDirTan
 			} else {
-				const col = Math.floor((ry.x + origin.x + h * fudge) / this.cellWidth)
-				const row = Math.floor((ry.y + origin.y + v * fudge) / this.cellHeight)
+				const col = Math.floor((ry.x + origin.x) / this.cellWidth)
+				const row = Math.floor((ry.y + origin.y + v) / this.cellHeight)
 
 				const cellIdx = row * this.nx + col
 				if (this.cells[cellIdx]) {
