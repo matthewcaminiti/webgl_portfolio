@@ -28,6 +28,7 @@ export class Solver {
 	keys: Record<string, boolean>
 	nRays: number
 	maxRayDist: number
+	fov: Vec2
 
 	constructor(
 		w: number,
@@ -82,6 +83,7 @@ export class Solver {
 
 		this.nRays = 1000
 		this.maxRayDist = 250
+		this.fov = new Vec2(Math.PI/2, Math.PI/2)
 	}
 
 	bindControls() {
@@ -288,10 +290,9 @@ export class Solver {
 	castRays(): Array<Vec2> {
 		let rays: Array<Vec2> = []
 
-		const horizontalFovRad = Math.PI / 2
-		const radIncr = horizontalFovRad / this.nRays
+		const radIncr = this.fov.x / this.nRays
 
-		for (let rot = horizontalFovRad / -2; rot <= horizontalFovRad / 2; rot += radIncr) {
+		for (let rot = this.fov.x / -2; rot <= this.fov.x / 2; rot += radIncr) {
 			rays.push(this.castRay(this.player.pos, this.player.dirRad + rot, this.maxRayDist))
 		}
 

@@ -1,7 +1,6 @@
 import {resizeCanvasToDisplaySize} from "./canvas"
-import {degToRad} from "./util"
 import {Player} from "./solver"
-import {Vec2} from "./math"
+import {Vec2, degToRad} from "./math"
 
 export class Renderer {
 	gl: WebGLRenderingContext
@@ -359,17 +358,20 @@ export class Renderer {
 		})
 	}
 
-	drawWalls(rays: Array<Vec2>, maxDist: number) {
+	drawWalls(rays: Array<Vec2>, maxDist: number, fov: Vec2) {
 		const wallWidth = this.w / rays.length
 
 		const cellHeight = 50
 		const verticalFovRad = Math.PI/2
 		const projectionDist = cellHeight / Math.tan(verticalFovRad/2) * 0.5
 
+		// incorrectly assumes rays collide at fixed distances
+		const radIncr = fov.x / rays.length
+
 		rays.forEach((ray, i) => {
 			const perc = 1 - ray.mag / maxDist
 
-			const relativeProjection = projectionDist / ray.mag
+			const relativeProjection = projectionDist / (ray.mag * Math.sin(Math.PI/4 + i*radIncr))
 			const relativeHeight = this.h * relativeProjection
 
 			const topleft = {x: i * wallWidth, y: this.h/2 - relativeHeight/2}
