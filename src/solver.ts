@@ -26,6 +26,7 @@ export class Solver {
 	cellHeight: number
 	player: Player
 	keys: Record<string, boolean>
+	nRays: number
 	maxRayDist: number
 
 	constructor(
@@ -79,6 +80,7 @@ export class Solver {
 			"KeyD": false,
 		}
 
+		this.nRays = 1000
 		this.maxRayDist = 250
 	}
 
@@ -286,12 +288,10 @@ export class Solver {
 	castRays(): Array<Vec2> {
 		let rays: Array<Vec2> = []
 
-		const nRays = 1000
+		const horizontalFovRad = Math.PI / 2
+		const radIncr = horizontalFovRad / this.nRays
 
-		const radRange = Math.PI / 2
-		const radIncr = radRange / nRays
-
-		for (let rot = radRange / -2; rot <= radRange / 2; rot += radIncr) {
+		for (let rot = horizontalFovRad / -2; rot <= horizontalFovRad / 2; rot += radIncr) {
 			rays.push(this.castRay(this.player.pos, this.player.dirRad + rot, this.maxRayDist))
 		}
 

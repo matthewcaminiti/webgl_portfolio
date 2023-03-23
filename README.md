@@ -8,6 +8,7 @@
 - ~~add collision with walls + boundary~~
 - ~~add raycasting visualization~~
 - ~~fix cell-clamping on raycasts~~
-- switch to 3d rendering (verticles lines)
-- perspective (parallel parallels) and vertical clamping
+- ~~switch to 3d rendering (verticles lines)~~
+- fix fisheye
+- perspective (parallel parallels)
 - texture walls based on cell val (+location in cell??)

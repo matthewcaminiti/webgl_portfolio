@@ -14,7 +14,6 @@ export class Vec2 {
 	get normalized(): Vec2 {
 		const mag = this.mag
 		return mag !== 0 ? new Vec2(this.x / mag, this.y / mag) : new Vec2(0, 0)
-
 	}
 
 	sub(v: Vec2): Vec2 {

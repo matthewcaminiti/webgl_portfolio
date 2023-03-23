@@ -362,13 +362,19 @@ export class Renderer {
 	drawWalls(rays: Array<Vec2>, maxDist: number) {
 		const wallWidth = this.w / rays.length
 
+		const cellHeight = 50
+		const verticalFovRad = Math.PI/2
+		const projectionDist = cellHeight / Math.tan(verticalFovRad/2) * 0.5
+
 		rays.forEach((ray, i) => {
-			// draw a vertical rect for each ray
-			const perc = 1 - (ray.mag / maxDist)
-			const relativeHeight = this.h * perc
+			const perc = 1 - ray.mag / maxDist
+
+			const relativeProjection = projectionDist / ray.mag
+			const relativeHeight = this.h * relativeProjection
 
 			const topleft = {x: i * wallWidth, y: this.h/2 - relativeHeight/2}
 			const botRight = {x: topleft.x + wallWidth, y: this.h/2 + relativeHeight/2}
+
 			const indices: Array<number> = [
 				topleft.x, topleft.y,
 				botRight.x, topleft.y,

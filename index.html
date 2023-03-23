@@ -28,13 +28,13 @@
 		justify-content: space-between;
 	}
 
-	#raycast-dist-btn {
+	#raycast-dist-btn, #raycast-count-btn {
 		flex: 1;
 	}
 
 	</style>
 </head>
-<body style="background-color:#18191a;">
+<body style="background-color:black;">
 	<div style="position: fixed; top: 1rem; right: 1rem; width: 12rem; color: white; background-color: rgba(0, 0, 0, 0.8); font-weight: bold; display: flex; flex-direction: column;">
 		<div id="stat-inner">
 			<div class="stat-row">
@@ -65,6 +65,14 @@
 				<div id="raycast-dist-ele" style="color: white; font-weight: bold;">0</div>
 				<button id="raycast-dist-btn">+50</button>
 				<button id="raycast-dist-btn">+100</button>
+			</div>
+			Num rays
+			<div style="display: flex; flex-direction: row; align-items: center; justify-content: space-evenly; width: 100%;">
+				<button id="raycast-count-btn">-100</button>
+				<button id="raycast-count-btn">-50</button>
+				<div id="raycast-count-ele" style="color: white; font-weight: bold;">0</div>
+				<button id="raycast-count-btn">+50</button>
+				<button id="raycast-count-btn">+100</button>
 			</div>
 			<button id="toggle-2d-view">Show 2d view</button>
 		</div>

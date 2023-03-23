@@ -78,6 +78,17 @@ export class ControlPanel {
 			})
 		})
 
+		const rayCountEle = document.getElementById("raycast-count-ele") as HTMLElement
+		rayCountEle.textContent = this.solver.nRays.toString()
+
+		document.querySelectorAll("#raycast-count-btn").forEach((btn) => {
+			btn.addEventListener("click", () => {
+				this.solver.nRays += btn.textContent ? +btn.textContent : 0
+
+				rayCountEle.textContent = this.solver.nRays.toString()
+			})
+		})
+
 		const toggle2dBtn = document.getElementById("toggle-2d-view") as HTMLInputElement
 		toggle2dBtn.addEventListener("click", () => {
 			this.is2dVisible = !this.is2dVisible
