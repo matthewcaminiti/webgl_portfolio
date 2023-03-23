@@ -283,7 +283,7 @@ export class Solver {
 	castRays(): Array<Vec2> {
 		let rays: Array<Vec2> = []
 
-		const nRays = 420
+		const nRays = 1000
 
 		const radRange = Math.PI / 2
 		const radIncr = radRange / nRays
