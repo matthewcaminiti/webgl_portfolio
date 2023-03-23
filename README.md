@@ -11,4 +11,14 @@
 - ~~switch to 3d rendering (verticles lines)~~
 - ~~fix fisheye~~
 - perspective (parallel parallels)
-- texture walls based on cell val (+location in cell??)
+- colour walls based on cell val (+location in cell??)
+- floor + ceiling
+- texture walls+floor+ceiling
+- add sprites (always-facing player)
+
+### Yolos:
+
+- verticality, create steps/increase z
+- add jumping
+- add physical objects
+- shadows/DOF
