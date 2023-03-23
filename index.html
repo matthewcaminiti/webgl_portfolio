@@ -6,6 +6,11 @@
 	<title>Tito's Lounge</title>
 	<script src="./dist/bundle.js" defer></script>
 	<style>
+	* {
+		margin: 0;
+		padding: 0;
+	}
+
 	html, body {
 		height: 100%;
 		margin: 0;
@@ -21,6 +26,10 @@
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
+	}
+
+	#raycast-dist-btn {
+		flex: 1;
 	}
 
 	</style>
@@ -44,6 +53,20 @@
 				<div id="unknown-ele">0.00</div>
 				<div>unknown</div>
 			</div>
+		</div>
+	</div>
+
+	<div style="position: absolute; bottom: 0rem; right: 1rem; width: 15rem; color: white; background-color: rgba(0, 0, 0, 0.8); font-weight: bold; display: flex; flex-direction: column;">
+		<div style="display: flex; flex-direction: column">
+			Max ray len
+			<div style="display: flex; flex-direction: row; align-items: center; justify-content: space-evenly; width: 100%;">
+				<button id="raycast-dist-btn">-100</button>
+				<button id="raycast-dist-btn">-50</button>
+				<div id="raycast-dist-ele" style="color: white; font-weight: bold;">0</div>
+				<button id="raycast-dist-btn">+50</button>
+				<button id="raycast-dist-btn">+100</button>
+			</div>
+			<button id="toggle-2d-view">Show 2d view</button>
 		</div>
 	</div>
 

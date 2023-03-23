@@ -1,3 +1,5 @@
+import {Solver} from "./solver"
+
 export class PerfWindow {
 	fpsEle: HTMLDivElement
 	fpsWalkingSum: number
@@ -54,5 +56,32 @@ export class PerfWindow {
 
 	addRenderTime(x: number) {
 		this.renderTimeWalkingSum += x
+	}
+}
+
+export class ControlPanel {
+	solver: Solver
+	is2dVisible: boolean
+
+	constructor(solver: Solver) {
+		this.solver = solver
+		this.is2dVisible = false
+
+		const distEle = document.getElementById("raycast-dist-ele") as HTMLElement
+		distEle.textContent = this.solver.maxRayDist.toString()
+
+		document.querySelectorAll("#raycast-dist-btn").forEach((btn) => {
+			btn.addEventListener("click", () => {
+				this.solver.maxRayDist += btn.textContent ? +btn.textContent : 0
+
+				distEle.textContent = this.solver.maxRayDist.toString()
+			})
+		})
+
+		const toggle2dBtn = document.getElementById("toggle-2d-view") as HTMLInputElement
+		toggle2dBtn.addEventListener("click", () => {
+			this.is2dVisible = !this.is2dVisible
+			toggle2dBtn.textContent = `${this.is2dVisible ? 'Hide' : 'Show'} 2d view`
+		})
 	}
 }

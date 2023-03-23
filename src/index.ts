@@ -1,6 +1,6 @@
 import {Renderer} from "./renderer"
 import {Solver} from "./solver"
-import {PerfWindow} from "./ui"
+import {PerfWindow, ControlPanel} from "./ui"
 
 const main = () => {
 	console.log("main")
@@ -14,6 +14,8 @@ const main = () => {
 	renderer.refreshCanvas()
 
 	const solver = new Solver(renderer.w, renderer.h)
+
+	const controlPanel = new ControlPanel(solver)
 
 	const perfWindow = new PerfWindow()
 
@@ -37,11 +39,14 @@ const main = () => {
 		perfWindow.addSolverTime(performance.now() - start)
 
 		start = performance.now()
-		renderer.drawGrid(solver.nx, solver.ny, solver.cellWidth, solver.cellHeight)
-		renderer.drawCells(solver.nx, solver.cellWidth, solver.cellHeight, solver.cells)
+		renderer.drawWalls(rays, solver.maxRayDist)
+		if (controlPanel.is2dVisible) {
+			renderer.drawGrid(solver.nx, solver.ny, solver.cellWidth, solver.cellHeight)
+			renderer.drawCells(solver.nx, solver.cellWidth, solver.cellHeight, solver.cells)
 
-		renderer.drawPlayer(solver.player)
-		renderer.drawRays(solver.player.pos, rays)
+			renderer.drawPlayer(solver.player)
+			renderer.drawRays(solver.player.pos, rays)
+		}
 		perfWindow.addRenderTime(performance.now() - start)
 
 		perfWindow.update(dt)

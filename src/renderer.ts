@@ -358,4 +358,47 @@ export class Renderer {
 			this.drawRay(origin, ray)
 		})
 	}
+
+	drawWalls(rays: Array<Vec2>, maxDist: number) {
+		const wallWidth = this.w / rays.length
+
+		rays.forEach((ray, i) => {
+			// draw a vertical rect for each ray
+			const perc = 1 - (ray.mag / maxDist)
+			const relativeHeight = this.h * perc
+
+			const topleft = {x: i * wallWidth, y: this.h/2 - relativeHeight/2}
+			const botRight = {x: topleft.x + wallWidth, y: this.h/2 + relativeHeight/2}
+			const indices: Array<number> = [
+				topleft.x, topleft.y,
+				botRight.x, topleft.y,
+				botRight.x, botRight.y,
+				topleft.x, topleft.y,
+				topleft.x, botRight.y,
+				botRight.x, botRight.y,
+			]
+
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
+			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
+
+			this.gl.vertexAttribPointer(
+				this.attributes["a_position"], // location
+				2, // size (num values to pull from buffer per iteration)
+				this.gl.FLOAT, // type of data in buffer
+				false, // normalize
+				0, // stride (0 = compute from size and type above)
+				0 // offset in buffer
+			)
+
+			this.gl.enableVertexAttribArray(this.attributes["a_position"])
+
+			this.gl.uniform4f(this.uniforms["u_color"], 0, 0, perc, 1)
+
+			this.gl.drawArrays(
+				this.gl.TRIANGLES,
+				0, // offset
+				indices.length/2 // num vertices per instance
+			)
+		})
+	}
 }
