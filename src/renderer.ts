@@ -273,11 +273,11 @@ export class Renderer {
 
 		let dirLineIndices = [
 			player.pos.x, player.pos.y,
-			Math.cos(player.dirRad) * player.r + player.pos.x, Math.sin(player.dirRad) * player.r + player.pos.y,
+			Math.cos(player.lookdir.x) * player.r + player.pos.x, Math.sin(player.lookdir.x) * player.r + player.pos.y,
 			player.pos.x, player.pos.y,
-			Math.cos(player.dirRad + Math.PI/8) * player.r + player.pos.x, Math.sin(player.dirRad + Math.PI/8) * player.r + player.pos.y,
+			Math.cos(player.lookdir.x + Math.PI/8) * player.r + player.pos.x, Math.sin(player.lookdir.x + Math.PI/8) * player.r + player.pos.y,
 			player.pos.x, player.pos.y,
-			Math.cos(player.dirRad - Math.PI/8) * player.r + player.pos.x, Math.sin(player.dirRad - Math.PI/8) * player.r + player.pos.y,
+			Math.cos(player.lookdir.x - Math.PI/8) * player.r + player.pos.x, Math.sin(player.lookdir.x - Math.PI/8) * player.r + player.pos.y,
 		]
 
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
@@ -358,13 +358,16 @@ export class Renderer {
 		})
 	}
 
-	drawWalls(rays: Array<[Vec2, Vec3]>, rayDistCap: number, fov: Vec2) {
+	drawWalls(rays: Array<[Vec2, Vec3]>, rayDistCap: number, fov: Vec2, lookDirY: number) {
 		const cellHeight = 50
 		const verticalFovRad = Math.PI/2
 		const projectionDist = cellHeight / Math.tan(verticalFovRad/2) * 0.5
 
 		// incorrectly assumes rays collide at fixed distances
 		const radIncr = fov.x / rays.length
+
+		const relative = lookDirY / fov.y * .5
+		const relativeH = this.h * (0.5 + relative)
 
 		rays.forEach(([ray, color], i) => {
 			const perc = 1 - ray.mag / rayDistCap
@@ -396,8 +399,8 @@ export class Renderer {
 				nextXpos = this.w/2 - nextRelativeHalfScreenRatio * this.w/2
 			}
 
-			const topleft = {x: xpos, y: this.h/2 - relativeHeight/2}
-			const botRight = {x: nextXpos, y: this.h/2 + relativeHeight/2}
+			const topleft = {x: xpos, y: relativeH - relativeHeight/2}
+			const botRight = {x: nextXpos, y: relativeH + relativeHeight/2}
 
 			const indices: Array<number> = [
 				topleft.x, topleft.y,
@@ -433,12 +436,15 @@ export class Renderer {
 		})
 	}
 
-	drawGround() {
+	drawGround(verticalFov: number, lookDirY: number) {
+		const relative = lookDirY / verticalFov * .5
+		const relativeH = this.h * (0.5 + relative)
+
 		const indices: Array<number> = [
-			0, this.h/2,
-			this.w, this.h/2,
+			0, relativeH,
+			this.w, relativeH,
 			this.w, this.h,
-			0, this.h/2,
+			0, relativeH,
 			0, this.h,
 			this.w, this.h,
 		]
@@ -467,14 +473,17 @@ export class Renderer {
 		)
 	}
 
-	drawSky() {
+	drawSky(verticalFov: number, lookDirY: number) {
+		const relative = lookDirY / verticalFov * .5
+		const relativeH = this.h * (0.5 + relative)
+
 		const indices: Array<number> = [
 			0, 0,
 			this.w, 0,
-			this.w, this.h/2,
+			this.w, relativeH,
 			0, 0,
-			0, this.h/2,
-			this.w, this.h/2,
+			0, relativeH,
+			this.w, relativeH,
 		]
 
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])

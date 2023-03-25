@@ -3,14 +3,16 @@ import {colorCodes} from "./consts"
 
 export class Player {
 	pos: Vec2
-	dirRad: number
+	movedir: number
+	lookdir: Vec2
 	r: number
 	v: number
 	turnSpeedRad: number
 
-	constructor(x: number, y: number, dirRad: number, r: number) {
+	constructor(x: number, y: number, movedir: number, r: number) {
 		this.pos = new Vec2(x, y)
-		this.dirRad = dirRad
+		this.movedir = movedir
+		this.lookdir = new Vec2(movedir, 0)
 		this.r = r
 		this.v = 150
 		this.turnSpeedRad = 3.0
@@ -80,6 +82,10 @@ export class Solver {
 			"KeyA": false,
 			"KeyS": false,
 			"KeyD": false,
+			"ArrowLeft": false,
+			"ArrowRight": false,
+			"ArrowUp": false,
+			"ArrowDown": false,
 		}
 
 		this.nRays = 1000
@@ -87,12 +93,34 @@ export class Solver {
 		this.fov = new Vec2(Math.PI/2, Math.PI/2)
 	}
 
-	bindControls() {
-		document.addEventListener("keydown", (e) => {
+	bindControls(canvas: HTMLCanvasElement) {
+		canvas.addEventListener("click", () => {
+			if (!document.pointerLockElement) {
+				canvas.requestPointerLock()
+			}
+		})
+
+		const updateMousePosition = (e: MouseEvent) => {
+			console.log(e.movementX, e.movementY)
+		}
+
+		document.addEventListener("pointerlockerror", () => {
+			console.log("Pointer lock failed")
+		})
+
+		document.addEventListener("pointerlockchange", () => {
+			if (document.pointerLockElement === canvas) {
+				document.addEventListener("mousemove", updateMousePosition, false)
+			} else {
+				document.removeEventListener("mousemove", updateMousePosition, false)
+			}
+		})
+
+		canvas.addEventListener("keydown", (e) => {
 			this.keys[e.code] = true
 		})
 
-		document.addEventListener("keyup", (e) => {
+		canvas.addEventListener("keyup", (e) => {
 			this.keys[e.code] = false
 		})
 	}
@@ -103,26 +131,38 @@ export class Solver {
 
 			switch (keyname) {
 				case "KeyQ":
-					this.player.pos.x += Math.cos(this.player.dirRad - Math.PI/2) * this.player.v * dt
-					this.player.pos.y += Math.sin(this.player.dirRad - Math.PI/2) * this.player.v * dt
+					this.player.pos.x += Math.cos(this.player.movedir - Math.PI/2) * this.player.v * dt
+					this.player.pos.y += Math.sin(this.player.movedir - Math.PI/2) * this.player.v * dt
 					break
 				case "KeyW":
-					this.player.pos.x += Math.cos(this.player.dirRad) * this.player.v * dt
-					this.player.pos.y += Math.sin(this.player.dirRad) * this.player.v * dt
+					this.player.pos.x += Math.cos(this.player.movedir) * this.player.v * dt
+					this.player.pos.y += Math.sin(this.player.movedir) * this.player.v * dt
 					break
 				case "KeyE":
-					this.player.pos.x += Math.cos(this.player.dirRad + Math.PI/2) * this.player.v * dt
-					this.player.pos.y += Math.sin(this.player.dirRad + Math.PI/2) * this.player.v * dt
+					this.player.pos.x += Math.cos(this.player.movedir + Math.PI/2) * this.player.v * dt
+					this.player.pos.y += Math.sin(this.player.movedir + Math.PI/2) * this.player.v * dt
 					break
 				case "KeyA":
-					this.player.dirRad -= this.player.turnSpeedRad * dt
+					this.player.movedir -= this.player.turnSpeedRad * dt
 					break
 				case "KeyS":
-					this.player.pos.x -= Math.cos(this.player.dirRad) * this.player.v * dt
-					this.player.pos.y -= Math.sin(this.player.dirRad) * this.player.v * dt
+					this.player.pos.x -= Math.cos(this.player.movedir) * this.player.v * dt
+					this.player.pos.y -= Math.sin(this.player.movedir) * this.player.v * dt
 					break
 				case "KeyD":
-					this.player.dirRad += this.player.turnSpeedRad * dt
+					this.player.movedir += this.player.turnSpeedRad * dt
+					break
+				case "ArrowLeft":
+					this.player.lookdir.x -= this.player.turnSpeedRad * dt
+					break
+				case "ArrowRight":
+					this.player.lookdir.x += this.player.turnSpeedRad * dt
+					break
+				case "ArrowUp":
+					this.player.lookdir.y -= this.player.turnSpeedRad * dt
+					break
+				case "ArrowDown":
+					this.player.lookdir.y += this.player.turnSpeedRad * dt
 					break
 				default:
 					break
@@ -294,7 +334,7 @@ export class Solver {
 		const radIncr = this.fov.x / this.nRays
 
 		for (let rot = this.fov.x / -2; rot <= this.fov.x / 2; rot += radIncr) {
-			rays.push(this.castRay(this.player.pos, this.player.dirRad + rot, this.rayDistCap))
+			rays.push(this.castRay(this.player.pos, this.player.lookdir.x + rot, this.rayDistCap))
 		}
 
 		return rays

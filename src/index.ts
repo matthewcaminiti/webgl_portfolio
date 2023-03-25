@@ -17,7 +17,7 @@ const main = () => {
 
 	const perfWindow = new PerfWindow()
 
-	solver.bindControls()
+	solver.bindControls(canvas)
 
 	let then = 0
 	const drawScene = (time: number) => {
@@ -37,9 +37,9 @@ const main = () => {
 		perfWindow.addSolverTime(performance.now() - start)
 
 		start = performance.now()
-		renderer.drawGround()
-		renderer.drawSky()
-		renderer.drawWalls(rays, solver.rayDistCap, solver.fov)
+		renderer.drawGround(solver.fov.y, solver.player.lookdir.y)
+		renderer.drawSky(solver.fov.y, solver.player.lookdir.y)
+		renderer.drawWalls(rays, solver.rayDistCap, solver.fov, solver.player.lookdir.y)
 		if (controlPanel.is2dVisible) {
 			renderer.drawGrid(solver.nx, solver.ny, solver.cellWidth, solver.cellHeight)
 			renderer.drawCells(solver.nx, solver.cellWidth, solver.cellHeight, solver.cells)
