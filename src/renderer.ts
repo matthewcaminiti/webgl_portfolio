@@ -371,15 +371,22 @@ export class Renderer {
 		rays.forEach((ray, i) => {
 			const perc = 1 - ray.mag / rayDistCap
 
-			const fovAdjustedAngle = fov.x/2 + i*radIncr
+			// angle of ray relative to center of horizontal FOV
+			const fovAdjustedAngle = fov.x/2 - i*radIncr
 
-			const rayAdjY = ray.mag * Math.sin(fovAdjustedAngle)
+			const rayAdjY = ray.mag * Math.cos(fovAdjustedAngle)
+			const rayAdjX = ray.mag * Math.sin(fovAdjustedAngle)
 
 			const relativeProjection = projectionDist / rayAdjY
 			const relativeHeight = this.h * relativeProjection
 
+			// width of half of FOV, rayAdjY far away
+			const fovAdjX = rayAdjY * Math.tan(fov.x/2)
 
-			const topleft = {x: i * wallWidth, y: this.h/2 - relativeHeight/2}
+			const relativeHalfScreenRatio = rayAdjX / fovAdjX
+			const xpos = this.w/2 - relativeHalfScreenRatio * this.w/2
+
+			const topleft = {x: xpos, y: this.h/2 - relativeHeight/2}
 			const botRight = {x: topleft.x + wallWidth, y: this.h/2 + relativeHeight/2}
 
 			const indices: Array<number> = [
