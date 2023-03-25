@@ -10,7 +10,7 @@
 - ~~fix cell-clamping on raycasts~~
 - ~~switch to 3d rendering (verticles lines)~~
 - ~~fix fisheye~~
-- perspective (parallel parallels)
+- ~~perspective (parallel parallels)~~
 - colour walls based on cell val (+location in cell??)
 - floor + ceiling
 - texture walls+floor+ceiling
