@@ -68,13 +68,13 @@ export class ControlPanel {
 		this.is2dVisible = false
 
 		const distEle = document.getElementById("raycast-dist-ele") as HTMLElement
-		distEle.textContent = this.solver.maxRayDist.toString()
+		distEle.textContent = this.solver.rayDistCap.toString()
 
 		document.querySelectorAll("#raycast-dist-btn").forEach((btn) => {
 			btn.addEventListener("click", () => {
-				this.solver.maxRayDist += btn.textContent ? +btn.textContent : 0
+				this.solver.rayDistCap += btn.textContent ? +btn.textContent : 0
 
-				distEle.textContent = this.solver.maxRayDist.toString()
+				distEle.textContent = this.solver.rayDistCap.toString()
 			})
 		})
 

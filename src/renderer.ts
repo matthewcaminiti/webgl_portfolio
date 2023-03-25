@@ -358,7 +358,7 @@ export class Renderer {
 		})
 	}
 
-	drawWalls(rays: Array<Vec2>, maxDist: number, fov: Vec2) {
+	drawWalls(rays: Array<Vec2>, rayDistCap: number, fov: Vec2) {
 		const wallWidth = this.w / rays.length
 
 		const cellHeight = 50
@@ -369,10 +369,15 @@ export class Renderer {
 		const radIncr = fov.x / rays.length
 
 		rays.forEach((ray, i) => {
-			const perc = 1 - ray.mag / maxDist
+			const perc = 1 - ray.mag / rayDistCap
 
-			const relativeProjection = projectionDist / (ray.mag * Math.sin(Math.PI/4 + i*radIncr))
+			const fovAdjustedAngle = fov.x/2 + i*radIncr
+
+			const rayAdjY = ray.mag * Math.sin(fovAdjustedAngle)
+
+			const relativeProjection = projectionDist / rayAdjY
 			const relativeHeight = this.h * relativeProjection
+
 
 			const topleft = {x: i * wallWidth, y: this.h/2 - relativeHeight/2}
 			const botRight = {x: topleft.x + wallWidth, y: this.h/2 + relativeHeight/2}

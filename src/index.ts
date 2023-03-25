@@ -3,8 +3,6 @@ import {Solver} from "./solver"
 import {PerfWindow, ControlPanel} from "./ui"
 
 const main = () => {
-	console.log("main")
-
 	const canvas = document.getElementById("canvas") as HTMLCanvasElement | null
 	if (!canvas) {
 		throw "Failed to get canvas element"
@@ -39,7 +37,7 @@ const main = () => {
 		perfWindow.addSolverTime(performance.now() - start)
 
 		start = performance.now()
-		renderer.drawWalls(rays, solver.maxRayDist, solver.fov)
+		renderer.drawWalls(rays, solver.rayDistCap, solver.fov)
 		if (controlPanel.is2dVisible) {
 			renderer.drawGrid(solver.nx, solver.ny, solver.cellWidth, solver.cellHeight)
 			renderer.drawCells(solver.nx, solver.cellWidth, solver.cellHeight, solver.cells)

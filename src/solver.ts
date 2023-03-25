@@ -27,7 +27,7 @@ export class Solver {
 	player: Player
 	keys: Record<string, boolean>
 	nRays: number
-	maxRayDist: number
+	rayDistCap: number
 	fov: Vec2
 
 	constructor(
@@ -82,7 +82,7 @@ export class Solver {
 		}
 
 		this.nRays = 1000
-		this.maxRayDist = 250
+		this.rayDistCap = 500
 		this.fov = new Vec2(Math.PI/2, Math.PI/2)
 	}
 
@@ -293,7 +293,7 @@ export class Solver {
 		const radIncr = this.fov.x / this.nRays
 
 		for (let rot = this.fov.x / -2; rot <= this.fov.x / 2; rot += radIncr) {
-			rays.push(this.castRay(this.player.pos, this.player.dirRad + rot, this.maxRayDist))
+			rays.push(this.castRay(this.player.pos, this.player.dirRad + rot, this.rayDistCap))
 		}
 
 		return rays
