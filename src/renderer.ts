@@ -1,6 +1,6 @@
 import {resizeCanvasToDisplaySize} from "./canvas"
 import {Player} from "./solver"
-import {Vec2, degToRad} from "./math"
+import {Vec2, Vec3, degToRad} from "./math"
 
 export class Renderer {
 	gl: WebGLRenderingContext
@@ -358,7 +358,7 @@ export class Renderer {
 		})
 	}
 
-	drawWalls(rays: Array<Vec2>, rayDistCap: number, fov: Vec2) {
+	drawWalls(rays: Array<[Vec2, Vec3]>, rayDistCap: number, fov: Vec2) {
 		const cellHeight = 50
 		const verticalFovRad = Math.PI/2
 		const projectionDist = cellHeight / Math.tan(verticalFovRad/2) * 0.5
@@ -366,7 +366,7 @@ export class Renderer {
 		// incorrectly assumes rays collide at fixed distances
 		const radIncr = fov.x / rays.length
 
-		rays.forEach((ray, i) => {
+		rays.forEach(([ray, color], i) => {
 			const perc = 1 - ray.mag / rayDistCap
 
 			// angle of ray relative to center of horizontal FOV
@@ -387,8 +387,8 @@ export class Renderer {
 			let nextXpos = this.w
 			if (i < rays.length - 1) {
 				const nextFovAdjustAngle = fov.x/2 - (i+1)*radIncr
-				const nextRayAdjX = rays[i+1].mag * Math.sin(nextFovAdjustAngle)
-				const nextRayAdjY = rays[i+1].mag * Math.cos(nextFovAdjustAngle)
+				const nextRayAdjX = rays[i+1][0].mag * Math.sin(nextFovAdjustAngle)
+				const nextRayAdjY = rays[i+1][0].mag * Math.cos(nextFovAdjustAngle)
 
 				const nextFovAdjX = nextRayAdjY * Math.tan(fov.x/2)
 
@@ -422,7 +422,8 @@ export class Renderer {
 
 			this.gl.enableVertexAttribArray(this.attributes["a_position"])
 
-			this.gl.uniform4f(this.uniforms["u_color"], 0, 0, perc, 1)
+			const _color = color.scale(perc)
+			this.gl.uniform4f(this.uniforms["u_color"], _color.x, _color.y, _color.z, 1)
 
 			this.gl.drawArrays(
 				this.gl.TRIANGLES,

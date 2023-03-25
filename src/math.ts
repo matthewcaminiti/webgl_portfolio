@@ -29,6 +29,22 @@ export class Vec2 {
 	}
 }
 
+export class Vec3 {
+	x: number
+	y: number
+	z: number
+
+	constructor(x: number, y: number, z: number) {
+		this.x = x
+		this.y = y
+		this.z = z
+	}
+
+	scale(x: number): Vec3 {
+		return new Vec3(this.x * x, this.y * x, this.z * x)
+	}
+}
+
 export const degToRad = (deg: number): number => {
 	return deg * Math.PI / 180
 }

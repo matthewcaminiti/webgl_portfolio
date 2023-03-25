@@ -45,7 +45,7 @@ const main = () => {
 			renderer.drawCells(solver.nx, solver.cellWidth, solver.cellHeight, solver.cells)
 
 			renderer.drawPlayer(solver.player)
-			renderer.drawRays(solver.player.pos, rays)
+			renderer.drawRays(solver.player.pos, rays.map((x) => x[0]))
 		}
 		perfWindow.addRenderTime(performance.now() - start)
 
