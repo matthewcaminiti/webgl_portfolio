@@ -37,6 +37,8 @@ const main = () => {
 		perfWindow.addSolverTime(performance.now() - start)
 
 		start = performance.now()
+		renderer.drawGround()
+		renderer.drawSky()
 		renderer.drawWalls(rays, solver.rayDistCap, solver.fov)
 		if (controlPanel.is2dVisible) {
 			renderer.drawGrid(solver.nx, solver.ny, solver.cellWidth, solver.cellHeight)

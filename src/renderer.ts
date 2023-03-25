@@ -359,8 +359,6 @@ export class Renderer {
 	}
 
 	drawWalls(rays: Array<Vec2>, rayDistCap: number, fov: Vec2) {
-		const wallWidth = this.w / rays.length
-
 		const cellHeight = 50
 		const verticalFovRad = Math.PI/2
 		const projectionDist = cellHeight / Math.tan(verticalFovRad/2) * 0.5
@@ -432,5 +430,73 @@ export class Renderer {
 				indices.length/2 // num vertices per instance
 			)
 		})
+	}
+
+	drawGround() {
+		const indices: Array<number> = [
+			0, this.h/2,
+			this.w, this.h/2,
+			this.w, this.h,
+			0, this.h/2,
+			0, this.h,
+			this.w, this.h,
+		]
+
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
+		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
+
+		this.gl.vertexAttribPointer(
+			this.attributes["a_position"], // location
+			2, // size (num values to pull from buffer per iteration)
+			this.gl.FLOAT, // type of data in buffer
+			false, // normalize
+			0, // stride (0 = compute from size and type above)
+			0 // offset in buffer
+		)
+
+		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+
+		// tan colour
+		this.gl.uniform4f(this.uniforms["u_color"], 0.871, 0.722, 0.529, 1)
+
+		this.gl.drawArrays(
+			this.gl.TRIANGLES,
+			0, // offset
+			indices.length/2 // num vertices per instance
+		)
+	}
+
+	drawSky() {
+		const indices: Array<number> = [
+			0, 0,
+			this.w, 0,
+			this.w, this.h/2,
+			0, 0,
+			0, this.h/2,
+			this.w, this.h/2,
+		]
+
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
+		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
+
+		this.gl.vertexAttribPointer(
+			this.attributes["a_position"], // location
+			2, // size (num values to pull from buffer per iteration)
+			this.gl.FLOAT, // type of data in buffer
+			false, // normalize
+			0, // stride (0 = compute from size and type above)
+			0 // offset in buffer
+		)
+
+		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+
+		// lightskyblue colour
+		this.gl.uniform4f(this.uniforms["u_color"], 0.682, 0.851, 0.902, 1)
+
+		this.gl.drawArrays(
+			this.gl.TRIANGLES,
+			0, // offset
+			indices.length/2 // num vertices per instance
+		)
 	}
 }
