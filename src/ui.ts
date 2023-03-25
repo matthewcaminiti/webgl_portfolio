@@ -72,8 +72,13 @@ export class ControlPanel {
 
 		document.querySelectorAll("#raycast-dist-btn").forEach((btn) => {
 			btn.addEventListener("click", () => {
-				this.solver.rayDistCap += btn.textContent ? +btn.textContent : 0
+				const incr = btn.textContent ? +btn.textContent : 0
+				if ((this.solver.rayDistCap + incr) <= 0) {
+					alert("no")
+					return
+				}
 
+				this.solver.rayDistCap += incr
 				distEle.textContent = this.solver.rayDistCap.toString()
 			})
 		})
@@ -83,7 +88,12 @@ export class ControlPanel {
 
 		document.querySelectorAll("#raycast-count-btn").forEach((btn) => {
 			btn.addEventListener("click", () => {
-				this.solver.nRays += btn.textContent ? +btn.textContent : 0
+				const incr = btn.textContent ? +btn.textContent : 0
+				if ((this.solver.nRays + incr) <= 0) {
+					alert("no")
+					return
+				}
+				this.solver.nRays += incr
 
 				rayCountEle.textContent = this.solver.nRays.toString()
 			})
