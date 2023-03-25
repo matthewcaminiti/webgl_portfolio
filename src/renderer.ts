@@ -386,8 +386,20 @@ export class Renderer {
 			const relativeHalfScreenRatio = rayAdjX / fovAdjX
 			const xpos = this.w/2 - relativeHalfScreenRatio * this.w/2
 
+			let nextXpos = this.w
+			if (i < rays.length - 1) {
+				const nextFovAdjustAngle = fov.x/2 - (i+1)*radIncr
+				const nextRayAdjX = rays[i+1].mag * Math.sin(nextFovAdjustAngle)
+				const nextRayAdjY = rays[i+1].mag * Math.cos(nextFovAdjustAngle)
+
+				const nextFovAdjX = nextRayAdjY * Math.tan(fov.x/2)
+
+				const nextRelativeHalfScreenRatio = nextRayAdjX / nextFovAdjX
+				nextXpos = this.w/2 - nextRelativeHalfScreenRatio * this.w/2
+			}
+
 			const topleft = {x: xpos, y: this.h/2 - relativeHeight/2}
-			const botRight = {x: topleft.x + wallWidth, y: this.h/2 + relativeHeight/2}
+			const botRight = {x: nextXpos, y: this.h/2 + relativeHeight/2}
 
 			const indices: Array<number> = [
 				topleft.x, topleft.y,
