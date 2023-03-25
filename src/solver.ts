@@ -103,6 +103,19 @@ export class Solver {
 			}
 		})
 
+		const focusWarningEle = document.getElementById("focus-warning") as HTMLDivElement
+		if (document.activeElement !== canvas) {
+			focusWarningEle.style.display = "block"
+		}
+
+		canvas.addEventListener("focusin", () => {
+			focusWarningEle.style.display = "none"
+		})
+
+		canvas.addEventListener("focusout", () => {
+			focusWarningEle.style.display = "block"
+		})
+
 		const updateMousePosition = (e: MouseEvent) => {
 			this.mousePos.x += e.movementX
 			this.mousePos.y -= e.movementY
@@ -134,14 +147,14 @@ export class Solver {
 				document.addEventListener("mousemove", updateMousePosition, false)
 				document.addEventListener("mousedown", handleMouseDown)
 				document.addEventListener("mouseup", handleMouseUp)
+				focusWarningEle.style.display = "none"
 			} else {
 				document.removeEventListener("mousemove", updateMousePosition, false)
 				document.removeEventListener("mousedown", handleMouseDown)
 				document.removeEventListener("mouseup", handleMouseUp)
+				focusWarningEle.style.display = "block"
 			}
 		})
-
-
 
 		canvas.addEventListener("keydown", (e) => {
 			this.keys[e.code] = true
