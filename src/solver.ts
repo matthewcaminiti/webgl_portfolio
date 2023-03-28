@@ -77,9 +77,7 @@ export class Solver {
 
 		this.player = new Player(450, 500, 0, this.cellHeight * 0.4)
 		this.keys = {
-			"KeyQ": false,
 			"KeyW": false,
-			"KeyE": false,
 			"KeyA": false,
 			"KeyS": false,
 			"KeyD": false,
@@ -87,7 +85,6 @@ export class Solver {
 			"ArrowRight": false,
 			"ArrowUp": false,
 			"ArrowDown": false,
-			"RMB": false,
 		}
 
 		this.nRays = 1000
@@ -121,23 +118,6 @@ export class Solver {
 			this.mousePos.y -= e.movementY
 		}
 
-		const handleMouseDown = (e: MouseEvent) => {
-			if (e.button === 2) { // right click
-				e.preventDefault()
-
-				this.keys["RMB"] = true
-				this.player.movedir = this.player.lookdir.x
-			}
-		}
-
-		const handleMouseUp = (e: MouseEvent) => {
-			if (e.button === 2) { // right click
-				e.preventDefault()
-
-				this.keys["RMB"] = false
-			}
-		}
-
 		document.addEventListener("pointerlockerror", () => {
 			console.log("Pointer lock failed")
 		})
@@ -145,13 +125,9 @@ export class Solver {
 		document.addEventListener("pointerlockchange", () => {
 			if (document.pointerLockElement === canvas) {
 				document.addEventListener("mousemove", updateMousePosition, false)
-				document.addEventListener("mousedown", handleMouseDown)
-				document.addEventListener("mouseup", handleMouseUp)
 				focusWarningEle.style.display = "none"
 			} else {
 				document.removeEventListener("mousemove", updateMousePosition, false)
-				document.removeEventListener("mousedown", handleMouseDown)
-				document.removeEventListener("mouseup", handleMouseUp)
 				focusWarningEle.style.display = "block"
 			}
 		})
@@ -170,38 +146,28 @@ export class Solver {
 			if (!isDown) return
 
 			switch (keyname) {
-				case "KeyQ":
-					this.player.pos.x += Math.cos(this.player.movedir - Math.PI/2) * this.player.v * dt
-					this.player.pos.y += Math.sin(this.player.movedir - Math.PI/2) * this.player.v * dt
-					break
 				case "KeyW":
 					this.player.pos.x += Math.cos(this.player.movedir) * this.player.v * dt
 					this.player.pos.y += Math.sin(this.player.movedir) * this.player.v * dt
 					break
-				case "KeyE":
-					this.player.pos.x += Math.cos(this.player.movedir + Math.PI/2) * this.player.v * dt
-					this.player.pos.y += Math.sin(this.player.movedir + Math.PI/2) * this.player.v * dt
-					break
 				case "KeyA":
-					if (!this.keys["RMB"]) {
-						this.player.movedir -= this.player.turnSpeedRad * dt
-						this.player.lookdir.x -= this.player.turnSpeedRad * dt
-					}
+					this.player.pos.x += Math.cos(this.player.movedir - Math.PI/2) * this.player.v * dt
+					this.player.pos.y += Math.sin(this.player.movedir - Math.PI/2) * this.player.v * dt
 					break
 				case "KeyS":
 					this.player.pos.x -= Math.cos(this.player.movedir) * this.player.v * dt
 					this.player.pos.y -= Math.sin(this.player.movedir) * this.player.v * dt
 					break
 				case "KeyD":
-					if (!this.keys["RMB"]) {
-						this.player.movedir += this.player.turnSpeedRad * dt
-						this.player.lookdir.x += this.player.turnSpeedRad * dt
-					}
+					this.player.pos.x += Math.cos(this.player.movedir + Math.PI/2) * this.player.v * dt
+					this.player.pos.y += Math.sin(this.player.movedir + Math.PI/2) * this.player.v * dt
 					break
 				case "ArrowLeft":
+					this.player.movedir -= this.player.turnSpeedRad * dt
 					this.player.lookdir.x -= this.player.turnSpeedRad * dt
 					break
 				case "ArrowRight":
+					this.player.movedir += this.player.turnSpeedRad * dt
 					this.player.lookdir.x += this.player.turnSpeedRad * dt
 					break
 				case "ArrowUp":
@@ -219,7 +185,7 @@ export class Solver {
 			this.player.lookdir.x += this.mousePos.x * dt * 0.1
 			this.player.lookdir.y += this.mousePos.y * dt * 0.1
 
-			if (this.keys["RMB"]) this.player.movedir = this.player.lookdir.x
+			this.player.movedir = this.player.lookdir.x
 
 			this.mousePos.x = 0
 			this.mousePos.y = 0
