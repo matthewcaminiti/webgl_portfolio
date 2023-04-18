@@ -52,3 +52,10 @@ export const degToRad = (deg: number): number => {
 export const radToDeg = (rad: number): number => {
 	return rad * 180 / Math.PI
 }
+
+export interface Ray {
+	pos: Vec2,
+	cellIdx: number,
+	cellVal: number,
+	distToAxis: number
+}

@@ -1,4 +1,4 @@
-import {Vec2, Vec3} from "./math"
+import {Vec2, Vec3, Ray} from "./math"
 import {colorCodes} from "./consts"
 
 export class Player {
@@ -284,7 +284,7 @@ export class Solver {
 		})
 	}
 
-	castRay(origin: Vec2, dirRad: number, maxDist: number): [Vec2, Vec3] {
+	castRay(origin: Vec2, dirRad: number, maxDist: number): Ray {
 		const normd = new Vec2(
 			Math.cos(dirRad),
 			Math.sin(dirRad),
@@ -322,7 +322,12 @@ export class Solver {
 			const magx = rx.mag
 			const magy = ry.mag
 
-			if (magx > maxDist && magy > maxDist) return [normd.scale(maxDist), colorCodes[1]]
+			if (magx > maxDist && magy > maxDist) return {
+				pos: normd.scale(maxDist),
+				cellIdx: -1,
+				cellVal: 1,
+				distToAxis: 1
+			}
 
 			if (magx <= magy) {
 				const col = Math.floor((rx.x + origin.x + h) / this.cellWidth)
@@ -330,7 +335,16 @@ export class Solver {
 
 				const cellIdx = row * this.nx + col
 				if (this.cells[cellIdx]) {
-					return [rx, colorCodes[this.cells[cellIdx]]]
+					let distToAxis = ((rx.y + origin.y) % this.cellHeight)/this.cellHeight
+					// distToAxis is y-directional, if ray dir is (-x) then want 1-dist
+					if (h < 0) distToAxis = 1 - distToAxis
+
+					return {
+						pos: rx,
+						cellIdx: cellIdx,
+						cellVal: this.cells[cellIdx],
+						distToAxis: distToAxis
+					}
 				}
 
 				rx.x += this.cellWidth*h
@@ -341,7 +355,16 @@ export class Solver {
 
 				const cellIdx = row * this.nx + col
 				if (this.cells[cellIdx]) {
-					return [ry, colorCodes[this.cells[cellIdx]]]
+					let distToAxis = ((ry.x + origin.x) % this.cellWidth)/this.cellWidth
+					// distToAxis is x-directional, if ray dir is (+y) then want 1-dist
+					if (v > 0) distToAxis = 1 - distToAxis
+
+					return {
+						pos: ry,
+						cellIdx: cellIdx,
+						cellVal: this.cells[cellIdx],
+						distToAxis: distToAxis
+					}
 				}
 
 				ry.y += this.cellHeight*v
@@ -350,12 +373,14 @@ export class Solver {
 		}
 	}
 
-	castRays(): Array<[Vec2, Vec3]> {
-		let rays: Array<[Vec2, Vec3]> = []
+	castRays(): Array<Ray> {
+		let rays: Array<Ray> = []
 
 		const radIncr = this.fov.x / this.nRays
 
-		for (let rot = this.fov.x / -2; rot <= this.fov.x / 2; rot += radIncr) {
+		const halfFovX = this.fov.x / 2
+
+		for (let rot = -1 * halfFovX; rot <= halfFovX; rot += radIncr) {
 			rays.push(this.castRay(this.player.pos, this.player.lookdir.x + rot, this.rayDistCap))
 		}
 

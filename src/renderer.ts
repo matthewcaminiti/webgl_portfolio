@@ -1,6 +1,6 @@
 import {resizeCanvasToDisplaySize} from "./canvas"
 import {Player} from "./solver"
-import {Vec2, Vec3, degToRad} from "./math"
+import {Vec2, Vec3, degToRad, Ray} from "./math"
 
 export class Renderer {
 	gl: WebGLRenderingContext
@@ -9,6 +9,7 @@ export class Renderer {
 	attributes: Record<string, number>
 	uniforms: Record<string, WebGLUniformLocation>
 	buffers: Record<string, WebGLBuffer>
+	textures: Record<string, WebGLTexture>
 
 	constructor(canvas: HTMLCanvasElement) {
 		this.canvas = canvas
@@ -24,25 +25,24 @@ export class Renderer {
 		const vertexShaderSrc = `
 			// an attribute will receive data from a buffer
 			attribute vec2 a_position;
+			attribute vec2 a_texcoord;
 
 			uniform vec2 u_resolution;
 
+			varying vec2 v_texcoord;
+
 			// all shaders have a main function
 			void main() {
+				// convert from pixel->clip space
 				// convert the position from pixels to 0.0 to 1.0
-				vec2 zeroToOne = a_position / u_resolution;
-
-				// convert from 0->1 to 0->2
-				vec2 zeroToTwo = zeroToOne * 2.0;
-
-				// convert from 0->2 to -1->+1 (clip space)
-				vec2 clipSpace = zeroToTwo - 1.0;
-
-				vec2 yFlipped = vec2(clipSpace.x, clipSpace.y * -1.0);
+				vec2 clipSpace = (a_position / u_resolution * 2.0) - 1.0;
 				
 				// gl_Position is a special variable a vertex shader
 				// is responsible for setting
-				gl_Position = vec4(yFlipped, 0, 1);
+				gl_Position = vec4(clipSpace.x, clipSpace.y * -1.0, 0, 1);
+
+				// Pass the texcoord to fragment shader
+				v_texcoord = a_texcoord;
 			}
 		`
 		const fragmentShaderSrc = `
@@ -52,9 +52,14 @@ export class Renderer {
 
 			uniform vec4 u_color;
 
+			varying vec2 v_texcoord;
+
+			uniform sampler2D u_texture;
+
 			void main() {
 				// gl_FragColor is a special variable a fragment shader is responsible for setting
-				gl_FragColor = u_color;
+				// gl_FragColor = u_color;
+				gl_FragColor = texture2D(u_texture, v_texcoord);
 			}
 		`
 
@@ -74,11 +79,18 @@ export class Renderer {
 		}
 		this.buffers["a_position"] = positionBuffer
 
-		const colorUniformLocation = this.gl.getUniformLocation(this.program, "u_color")
-		if (!colorUniformLocation) {
-			throw new Error("Failed to get 'u_color' location")
+		this.attributes["a_texcoord"] = this.gl.getAttribLocation(this.program, "a_texcoord")
+		const texcoordBuffer = this.gl.createBuffer()
+		if (!texcoordBuffer) {
+			throw new Error("Failed to create tex coord buffer")
 		}
-		this.uniforms["u_color"] = colorUniformLocation
+		this.buffers["a_texcoord"] = texcoordBuffer
+
+		const textureLocation = this.gl.getUniformLocation(this.program, "u_texture")
+		if (!textureLocation) {
+			throw new Error("Failed to get 'u_texture' location")
+		}
+		this.uniforms["u_texture"] = textureLocation
 
 		this.gl.useProgram(this.program)
 
@@ -86,6 +98,22 @@ export class Renderer {
 		const resolutionUniformLocation = this.gl.getUniformLocation(this.program, "u_resolution")
 		this.gl.uniform2f(resolutionUniformLocation, this.gl.canvas.width, this.gl.canvas.height)
 		console.log(`~~~Resolution~~~\n(${gl.canvas.width} x ${gl.canvas.height}) px`)
+
+		this.textures = {
+			1: this.gl.createTexture() as WebGLTexture
+		}
+		this.gl.bindTexture(gl.TEXTURE_2D, this.textures[1])
+
+		this.gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+			new Uint8Array([0, 0, 255, 255]))
+
+		const image = new Image()
+		image.src = "assets/BRICK_1B.png"
+		image.addEventListener("load", () => {
+			this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[1])
+			this.gl.texImage2D(this.gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
+			this.gl.generateMipmap(gl.TEXTURE_2D)
+		})
 	}
 
 	get w() {
@@ -177,8 +205,6 @@ export class Renderer {
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
 
-		this.gl.uniform4f(this.uniforms["u_color"], 0.95, 0.95, 0.95, 1)
-
 		this.gl.drawArrays(
 			this.gl.LINES,
 			0, // offset
@@ -216,8 +242,6 @@ export class Renderer {
 		)
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
-
-		this.gl.uniform4f(this.uniforms["u_color"], .5, .5, .5, 1)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
@@ -263,8 +287,6 @@ export class Renderer {
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
 
-		this.gl.uniform4f(this.uniforms["u_color"], 0.95, 0.95, 0.95, 1)
-
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
 			0, // offset
@@ -293,8 +315,6 @@ export class Renderer {
 		)
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
-
-		this.gl.uniform4f(this.uniforms["u_color"], 0, 0, 0, 1)
 
 		this.gl.drawArrays(
 			this.gl.LINES,
@@ -343,8 +363,6 @@ export class Renderer {
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
 
-		this.gl.uniform4f(this.uniforms["u_color"], 0.95, 0.95, 0.95, 1)
-
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
 			0, // offset
@@ -358,7 +376,7 @@ export class Renderer {
 		})
 	}
 
-	drawWalls(rays: Array<[Vec2, Vec3]>, rayDistCap: number, fov: Vec2, lookDirY: number) {
+	drawWalls(rays: Array<Ray>, rayDistCap: number, fov: Vec2, lookDirY: number) {
 		const cellHeight = 50
 		const verticalFovRad = Math.PI/2
 		const projectionDist = cellHeight / Math.tan(verticalFovRad/2) * 0.5
@@ -369,14 +387,12 @@ export class Renderer {
 		const relative = lookDirY / fov.y * .5
 		const relativeH = this.h * (0.5 + relative)
 
-		rays.forEach(([ray, color], i) => {
-			const perc = 1 - ray.mag / rayDistCap
-
+		rays.forEach(({pos, cellIdx, cellVal, distToAxis}, i) => {
 			// angle of ray relative to center of horizontal FOV
 			const fovAdjustedAngle = fov.x/2 - i*radIncr
 
-			const rayAdjY = ray.mag * Math.cos(fovAdjustedAngle)
-			const rayAdjX = ray.mag * Math.sin(fovAdjustedAngle)
+			const rayAdjY = pos.mag * Math.cos(fovAdjustedAngle)
+			const rayAdjX = pos.mag * Math.sin(fovAdjustedAngle)
 
 			const relativeProjection = projectionDist / rayAdjY
 			const relativeHeight = this.h * relativeProjection
@@ -388,10 +404,10 @@ export class Renderer {
 			const xpos = this.w/2 - relativeHalfScreenRatio * this.w/2
 
 			let nextXpos = this.w
-			if (i < rays.length - 1) {
+			if (i < (rays.length - 1)) {
 				const nextFovAdjustAngle = fov.x/2 - (i+1)*radIncr
-				const nextRayAdjX = rays[i+1][0].mag * Math.sin(nextFovAdjustAngle)
-				const nextRayAdjY = rays[i+1][0].mag * Math.cos(nextFovAdjustAngle)
+				const nextRayAdjX = rays[i+1].pos.mag * Math.sin(nextFovAdjustAngle)
+				const nextRayAdjY = rays[i+1].pos.mag * Math.cos(nextFovAdjustAngle)
 
 				const nextFovAdjX = nextRayAdjY * Math.tan(fov.x/2)
 
@@ -425,8 +441,43 @@ export class Renderer {
 
 			this.gl.enableVertexAttribArray(this.attributes["a_position"])
 
-			const _color = color.scale(perc)
-			this.gl.uniform4f(this.uniforms["u_color"], _color.x, _color.y, _color.z, 1)
+			const texTopLeft = {x: distToAxis, y: 0}
+			// possibly look back?
+			if (i >= 1 && rays[i-1].cellIdx !== rays[i].cellIdx) {
+				texTopLeft.x = 0
+			}
+
+			let nextDistToNextAxis = 1
+
+			if (i < rays.length - 1 && rays[i+1].cellIdx === cellIdx) {
+				nextDistToNextAxis = rays[i+1].distToAxis
+			} else if (i === rays.length - 1) {
+				nextDistToNextAxis = distToAxis + distToAxis - rays[i-1].distToAxis
+			}
+
+			const texBotRight = {x: nextDistToNextAxis, y: 1}
+
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_texcoord"])
+			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([
+				texTopLeft.x, texTopLeft.y,
+				texBotRight.x, texTopLeft.y,
+				texBotRight.x, texBotRight.y,
+				texTopLeft.x, texTopLeft.y,
+				texTopLeft.x, texBotRight.y,
+				texBotRight.x, texBotRight.y,
+			]), this.gl.STATIC_DRAW)
+
+			this.gl.vertexAttribPointer(
+				this.attributes["a_texcoord"],
+				2,
+				this.gl.FLOAT,
+				false,
+				0,
+				0,
+			)
+			this.gl.enableVertexAttribArray(this.attributes["a_texcoord"])
+
+			this.gl.uniform1i(this.uniforms["u_texture"], 0)
 
 			this.gl.drawArrays(
 				this.gl.TRIANGLES,
@@ -463,9 +514,6 @@ export class Renderer {
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
 
-		// tan colour
-		this.gl.uniform4f(this.uniforms["u_color"], 0.871, 0.722, 0.529, 1)
-
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
 			0, // offset
@@ -499,9 +547,6 @@ export class Renderer {
 		)
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
-
-		// lightskyblue colour
-		this.gl.uniform4f(this.uniforms["u_color"], 0.682, 0.851, 0.902, 1)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
