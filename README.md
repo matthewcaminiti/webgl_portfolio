@@ -1,5 +1,23 @@
 # webgl portfolio
 
+# dev
+
+- run webpack build watcher, and serve current dir
+
+`npm run dev`
+
+`live-server`
+
+# deploy
+
+- `/assets`, `/dist`, and `index.html` are symlinked to `/opt/webgl_portfolio/public`
+- nginx points to `/opt/webgl_portfolio/public`
+
+1. push to master
+2. ssh rpi
+3. pull latest
+4. run `npm run build:prod`
+
 ### TODO:
 
 - ~~draw grid~~
@@ -15,6 +33,7 @@
 - ~~floor + ceiling~~
 - ~~add camera movement (mouse)~~
 - texture walls+floor+ceiling
+- add texture selection
 - add sprites (always-facing player)
 
 ### Yolos:
