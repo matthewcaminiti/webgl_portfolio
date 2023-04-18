@@ -214,6 +214,8 @@ export class Renderer {
 
 	drawCells(nx: number, cellWidth: number, cellHeight: number, cells: Array<number>) {
 		let indices: Array<number> = []
+		let texIndices: Array<number> = []
+
 		for (let i = 0; i < cells.length; i++) {
 			if (!cells[i]) continue
 
@@ -226,6 +228,14 @@ export class Renderer {
 				x, y,
 				x, y + cellWidth,
 				x + cellWidth, y + cellHeight,
+			)
+			texIndices.push(
+				0, 0,
+				1, 0,
+				1, 1,
+				0, 0,
+				0, 1,
+				1, 1,
 			)
 		}
 
@@ -242,6 +252,21 @@ export class Renderer {
 		)
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_texcoord"])
+		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(texIndices), this.gl.STATIC_DRAW)
+
+		this.gl.vertexAttribPointer(
+			this.attributes["a_texcoord"],
+			2,
+			this.gl.FLOAT,
+			false,
+			0,
+			0,
+		)
+		this.gl.enableVertexAttribArray(this.attributes["a_texcoord"])
+
+		this.gl.uniform1i(this.uniforms["u_texture"], 0)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
@@ -316,6 +341,8 @@ export class Renderer {
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
 
+		this.gl.uniform1i(this.uniforms["u_texture"], 1)
+
 		this.gl.drawArrays(
 			this.gl.LINES,
 			0, // offset
@@ -362,6 +389,8 @@ export class Renderer {
 		)
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+
+		this.gl.uniform1i(this.uniforms["u_texture"], 1)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
@@ -514,6 +543,28 @@ export class Renderer {
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
 
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_texcoord"])
+		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 0,
+			0, 1,
+			1, 1,
+		]), this.gl.STATIC_DRAW)
+
+		this.gl.vertexAttribPointer(
+			this.attributes["a_texcoord"],
+			2,
+			this.gl.FLOAT,
+			false,
+			0,
+			0,
+		)
+		this.gl.enableVertexAttribArray(this.attributes["a_texcoord"])
+
+		this.gl.uniform1i(this.uniforms["u_texture"], 0)
+
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
 			0, // offset
@@ -547,6 +598,28 @@ export class Renderer {
 		)
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_texcoord"])
+		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 0,
+			0, 1,
+			1, 1,
+		]), this.gl.STATIC_DRAW)
+
+		this.gl.vertexAttribPointer(
+			this.attributes["a_texcoord"],
+			2,
+			this.gl.FLOAT,
+			false,
+			0,
+			0,
+		)
+		this.gl.enableVertexAttribArray(this.attributes["a_texcoord"])
+
+		this.gl.uniform1i(this.uniforms["u_texture"], 0)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
