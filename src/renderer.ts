@@ -416,6 +416,8 @@ export class Renderer {
 		const relative = lookDirY / fov.y * .5
 		const relativeH = this.h * (0.5 + relative)
 
+		const indices: Array<number> = []
+		const texIndices: Array<number> = []
 		rays.forEach(({pos, cellIdx, cellVal, distToAxis}, i) => {
 			// angle of ray relative to center of horizontal FOV
 			const fovAdjustedAngle = fov.x/2 - i*radIncr
@@ -433,7 +435,7 @@ export class Renderer {
 			const xpos = this.w/2 - relativeHalfScreenRatio * this.w/2
 
 			let nextXpos = this.w
-			if (i < (rays.length - 1)) {
+			if (i < rays.length - 1) {
 				const nextFovAdjustAngle = fov.x/2 - (i+1)*radIncr
 				const nextRayAdjX = rays[i+1].pos.mag * Math.sin(nextFovAdjustAngle)
 				const nextRayAdjY = rays[i+1].pos.mag * Math.cos(nextFovAdjustAngle)
@@ -447,28 +449,14 @@ export class Renderer {
 			const topleft = {x: xpos, y: relativeH - relativeHeight/2}
 			const botRight = {x: nextXpos, y: relativeH + relativeHeight/2}
 
-			const indices: Array<number> = [
+			indices.push(
 				topleft.x, topleft.y,
 				botRight.x, topleft.y,
 				botRight.x, botRight.y,
 				topleft.x, topleft.y,
 				topleft.x, botRight.y,
 				botRight.x, botRight.y,
-			]
-
-			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
-			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
-
-			this.gl.vertexAttribPointer(
-				this.attributes["a_position"], // location
-				2, // size (num values to pull from buffer per iteration)
-				this.gl.FLOAT, // type of data in buffer
-				false, // normalize
-				0, // stride (0 = compute from size and type above)
-				0 // offset in buffer
 			)
-
-			this.gl.enableVertexAttribArray(this.attributes["a_position"])
 
 			const texTopLeft = {x: distToAxis, y: 0}
 			// possibly look back?
@@ -480,8 +468,8 @@ export class Renderer {
 
 			if (
 				i < rays.length - 1 &&
-					rays[i+1].cellIdx === cellIdx &&
-					rays[i+1].distToAxis > distToAxis
+				rays[i+1].cellIdx === cellIdx &&
+				rays[i+1].distToAxis > distToAxis
 			) {
 				nextDistToNextAxis = rays[i+1].distToAxis
 			} else if (i === rays.length - 1) {
@@ -490,34 +478,49 @@ export class Renderer {
 
 			const texBotRight = {x: nextDistToNextAxis, y: 1}
 
-			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_texcoord"])
-			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([
+			texIndices.push(
 				texTopLeft.x, texTopLeft.y,
 				texBotRight.x, texTopLeft.y,
 				texBotRight.x, texBotRight.y,
 				texTopLeft.x, texTopLeft.y,
 				texTopLeft.x, texBotRight.y,
 				texBotRight.x, texBotRight.y,
-			]), this.gl.STATIC_DRAW)
-
-			this.gl.vertexAttribPointer(
-				this.attributes["a_texcoord"],
-				2,
-				this.gl.FLOAT,
-				false,
-				0,
-				0,
-			)
-			this.gl.enableVertexAttribArray(this.attributes["a_texcoord"])
-
-			this.gl.uniform1i(this.uniforms["u_texture"], 0)
-
-			this.gl.drawArrays(
-				this.gl.TRIANGLES,
-				0, // offset
-				indices.length/2 // num vertices per instance
 			)
 		})
+
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
+		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
+
+		this.gl.vertexAttribPointer(
+			this.attributes["a_position"], // location
+			2, // size (num values to pull from buffer per iteration)
+			this.gl.FLOAT, // type of data in buffer
+			false, // normalize
+			0, // stride (0 = compute from size and type above)
+			0 // offset in buffer
+		)
+
+		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_texcoord"])
+		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(texIndices), this.gl.STATIC_DRAW)
+
+		this.gl.vertexAttribPointer(
+			this.attributes["a_texcoord"],
+			2,
+			this.gl.FLOAT,
+			false,
+			0,
+			0,
+		)
+		this.gl.enableVertexAttribArray(this.attributes["a_texcoord"])
+
+		this.gl.uniform1i(this.uniforms["u_texture"], 0)
+
+		this.gl.drawArrays(
+			this.gl.TRIANGLES,
+			0, // offset
+			indices.length/2 // num vertices per instance
+		)
 	}
 
 	drawGround(verticalFov: number, lookDirY: number) {
