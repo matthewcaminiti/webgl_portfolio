@@ -478,7 +478,11 @@ export class Renderer {
 
 			let nextDistToNextAxis = 1
 
-			if (i < rays.length - 1 && rays[i+1].cellIdx === cellIdx) {
+			if (
+				i < rays.length - 1 &&
+					rays[i+1].cellIdx === cellIdx &&
+					rays[i+1].distToAxis > distToAxis
+			) {
 				nextDistToNextAxis = rays[i+1].distToAxis
 			} else if (i === rays.length - 1) {
 				nextDistToNextAxis = distToAxis + distToAxis - rays[i-1].distToAxis
