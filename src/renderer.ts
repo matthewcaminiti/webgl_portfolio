@@ -51,15 +51,17 @@ export class Renderer {
 			precision mediump float;
 
 			uniform vec4 u_color;
+			uniform sampler2D u_texture;
 
 			varying vec2 v_texcoord;
 
-			uniform sampler2D u_texture;
-
 			void main() {
 				// gl_FragColor is a special variable a fragment shader is responsible for setting
-				// gl_FragColor = u_color;
-				gl_FragColor = texture2D(u_texture, v_texcoord);
+				if (u_color.x > 0.0 || u_color.y > 0.0 || u_color.z > 0.0) {
+					gl_FragColor = u_color;
+				} else {
+					gl_FragColor = texture2D(u_texture, v_texcoord);
+				}
 			}
 		`
 
@@ -85,6 +87,12 @@ export class Renderer {
 			throw new Error("Failed to create tex coord buffer")
 		}
 		this.buffers["a_texcoord"] = texcoordBuffer
+
+		const colorLocation = this.gl.getUniformLocation(this.program, "u_color")
+		if (!colorLocation) {
+			throw new Error("Failed to get 'u_color' location")
+		}
+		this.uniforms["u_color"] = colorLocation
 
 		const textureLocation = this.gl.getUniformLocation(this.program, "u_texture")
 		if (!textureLocation) {
@@ -419,6 +427,8 @@ export class Renderer {
 		const indices: Array<number> = []
 		const texIndices: Array<number> = []
 		rays.forEach(({pos, cellIdx, cellVal, distToAxis}, i) => {
+			/* const perc = 1 - pos.mag / rayDistCap */
+
 			// angle of ray relative to center of horizontal FOV
 			const fovAdjustedAngle = fov.x/2 - i*radIncr
 
@@ -514,6 +524,7 @@ export class Renderer {
 		)
 		this.gl.enableVertexAttribArray(this.attributes["a_texcoord"])
 
+		this.gl.uniform4f(this.uniforms["u_color"], 0, 0, 0, 1)
 		this.gl.uniform1i(this.uniforms["u_texture"], 0)
 
 		this.gl.drawArrays(
@@ -550,27 +561,7 @@ export class Renderer {
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
 
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_texcoord"])
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([
-			0, 0,
-			1, 0,
-			1, 1,
-			0, 0,
-			0, 1,
-			1, 1,
-		]), this.gl.STATIC_DRAW)
-
-		this.gl.vertexAttribPointer(
-			this.attributes["a_texcoord"],
-			2,
-			this.gl.FLOAT,
-			false,
-			0,
-			0,
-		)
-		this.gl.enableVertexAttribArray(this.attributes["a_texcoord"])
-
-		this.gl.uniform1i(this.uniforms["u_texture"], 0)
+		this.gl.uniform4f(this.uniforms["u_color"], 0.475, 0.490, 0.498, 1)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
@@ -606,27 +597,7 @@ export class Renderer {
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
 
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_texcoord"])
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([
-			0, 0,
-			1, 0,
-			1, 1,
-			0, 0,
-			0, 1,
-			1, 1,
-		]), this.gl.STATIC_DRAW)
-
-		this.gl.vertexAttribPointer(
-			this.attributes["a_texcoord"],
-			2,
-			this.gl.FLOAT,
-			false,
-			0,
-			0,
-		)
-		this.gl.enableVertexAttribArray(this.attributes["a_texcoord"])
-
-		this.gl.uniform1i(this.uniforms["u_texture"], 0)
+		this.gl.uniform4f(this.uniforms["u_color"], 0.384, 0.396, 0.404, 1)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,

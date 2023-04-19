@@ -33,7 +33,7 @@
 - ~~floor + ceiling~~
 - ~~add camera movement (mouse)~~
 - texture walls+floor+ceiling
-- add texture selection
+- add texture selection (use texture atlas)
 - add sprites (always-facing player)
 
 ### Yolos:
