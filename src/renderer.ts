@@ -26,10 +26,12 @@ export class Renderer {
 			// an attribute will receive data from a buffer
 			attribute vec2 a_position;
 			attribute vec2 a_texcoord;
+			attribute float a_dist;
 
 			uniform vec2 u_resolution;
 
 			varying vec2 v_texcoord;
+			varying float v_dist;
 
 			// all shaders have a main function
 			void main() {
@@ -43,6 +45,9 @@ export class Renderer {
 
 				// Pass the texcoord to fragment shader
 				v_texcoord = a_texcoord;
+
+				// Pass the dist value to fragment shader
+				v_dist = a_dist;
 			}
 		`
 		const fragmentShaderSrc = `
@@ -54,13 +59,14 @@ export class Renderer {
 			uniform sampler2D u_texture;
 
 			varying vec2 v_texcoord;
+			varying float v_dist;
 
 			void main() {
 				// gl_FragColor is a special variable a fragment shader is responsible for setting
 				if (u_color.x > 0.0 || u_color.y > 0.0 || u_color.z > 0.0) {
 					gl_FragColor = u_color;
 				} else {
-					gl_FragColor = texture2D(u_texture, v_texcoord);
+					gl_FragColor = texture2D(u_texture, v_texcoord) * v_dist;
 				}
 			}
 		`
@@ -87,6 +93,13 @@ export class Renderer {
 			throw new Error("Failed to create tex coord buffer")
 		}
 		this.buffers["a_texcoord"] = texcoordBuffer
+
+		this.attributes["a_dist"] = this.gl.getAttribLocation(this.program, "a_dist")
+		const distBuffer = this.gl.createBuffer()
+		if (!distBuffer) {
+			throw new Error("Failed to create a_dist buffer")
+		}
+		this.buffers["a_dist"] = distBuffer
 
 		const colorLocation = this.gl.getUniformLocation(this.program, "u_color")
 		if (!colorLocation) {
@@ -426,8 +439,17 @@ export class Renderer {
 
 		const indices: Array<number> = []
 		const texIndices: Array<number> = []
+		const distIndices: Array<number> = []
 		rays.forEach(({pos, cellIdx, cellVal, distToAxis}, i) => {
-			/* const perc = 1 - pos.mag / rayDistCap */
+			const perc = 1 - pos.mag / rayDistCap
+			distIndices.push(
+				perc, perc,
+				perc, perc,
+				perc, perc,
+				perc, perc,
+				perc, perc,
+				perc, perc,
+			)
 
 			// angle of ray relative to center of horizontal FOV
 			const fovAdjustedAngle = fov.x/2 - i*radIncr
@@ -511,6 +533,7 @@ export class Renderer {
 		)
 
 		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_texcoord"])
 		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(texIndices), this.gl.STATIC_DRAW)
 
@@ -524,13 +547,26 @@ export class Renderer {
 		)
 		this.gl.enableVertexAttribArray(this.attributes["a_texcoord"])
 
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_dist"])
+		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(distIndices), this.gl.STATIC_DRAW)
+
+		this.gl.vertexAttribPointer(
+			this.attributes["a_dist"],
+			2,
+			this.gl.FLOAT,
+			false,
+			0,
+			0,
+		)
+		this.gl.enableVertexAttribArray(this.attributes["a_dist"])
+
 		this.gl.uniform4f(this.uniforms["u_color"], 0, 0, 0, 1)
 		this.gl.uniform1i(this.uniforms["u_texture"], 0)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
 			0, // offset
-			indices.length/2 // num vertices per instance
+			indices.length/2 // num vertices (x, y)
 		)
 	}
 
