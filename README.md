@@ -32,12 +32,13 @@
 - ~~colour walls based on cell val (+location in cell??)~~
 - ~~floor + ceiling~~
 - ~~add camera movement (mouse)~~
-- texture walls+floor+ceiling
-- add texture selection (use texture atlas)
+- ~~texture walls+floor+ceiling~~ (floor+ceiling not textured, wolfenstein 3d didnt either)
+- ~~add texture selection (use texture atlas)~~
 - add sprites (always-facing player)
 
 ### Yolos:
 
+- texture floor+ceiling
 - verticality, create steps/increase z
 - add jumping
 - add physical objects
