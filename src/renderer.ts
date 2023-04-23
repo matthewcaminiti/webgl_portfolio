@@ -129,7 +129,7 @@ export class Renderer {
 			new Uint8Array([0, 0, 255, 255]))
 
 		const image = new Image()
-		image.src = "assets/BRICK_1B.png"
+		image.src = "assets/tex_atlas.png"
 		image.addEventListener("load", () => {
 			this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[1])
 			this.gl.texImage2D(this.gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
@@ -478,8 +478,14 @@ export class Renderer {
 				nextXpos = this.w/2 - nextRelativeHalfScreenRatio * this.w/2
 			}
 
-			const topleft = {x: xpos, y: relativeH - relativeHeight/2}
-			const botRight = {x: nextXpos, y: relativeH + relativeHeight/2}
+			const topleft = {
+				x: xpos,
+				y: relativeH - relativeHeight/2
+			}
+			const botRight = {
+				x: nextXpos,
+				y: relativeH + relativeHeight/2
+			}
 
 			indices.push(
 				topleft.x, topleft.y,
@@ -490,14 +496,8 @@ export class Renderer {
 				botRight.x, botRight.y,
 			)
 
-			const texTopLeft = {x: distToAxis, y: 0}
-			// possibly look back?
-			if (i >= 1 && rays[i-1].cellIdx !== rays[i].cellIdx) {
-				texTopLeft.x = 0
-			}
-
 			let nextDistToNextAxis = 1
-
+			// look forward, if cell is same and reldist is greater than current, draw to it
 			if (
 				i < rays.length - 1 &&
 				rays[i+1].cellIdx === cellIdx &&
@@ -505,10 +505,25 @@ export class Renderer {
 			) {
 				nextDistToNextAxis = rays[i+1].distToAxis
 			} else if (i === rays.length - 1) {
-				nextDistToNextAxis = distToAxis + distToAxis - rays[i-1].distToAxis
+				// if last ray, fudge it
+				nextDistToNextAxis = 2*distToAxis - rays[i-1].distToAxis
 			}
 
-			const texBotRight = {x: nextDistToNextAxis, y: 1}
+			const texIndex = cellVal - 1
+			const texOffset = {x : texIndex / 16, y: Math.floor(texIndex / 16) % 16}
+
+			const texTopLeft = {
+				x: texOffset.x + distToAxis*64/1024,
+				y: texOffset.y
+			}
+			// possibly look back?
+			if (i >= 1 && rays[i-1].cellIdx !== rays[i].cellIdx) {
+				texTopLeft.x = texOffset.x
+			}
+			const texBotRight = {
+				x: texOffset.x + nextDistToNextAxis*64/1024,
+				y: texOffset.y + 64/1024
+			}
 
 			texIndices.push(
 				texTopLeft.x, texTopLeft.y,
