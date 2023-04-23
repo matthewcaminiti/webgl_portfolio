@@ -88,7 +88,7 @@ export class Solver {
 		}
 
 		this.nRays = 1000
-		this.rayDistCap = 500
+		this.rayDistCap = 1000
 		this.fov = new Vec2(Math.PI/2, Math.PI/2)
 		this.mousePos = new Vec2(0, 0)
 	}
