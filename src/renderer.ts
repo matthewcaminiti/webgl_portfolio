@@ -1,6 +1,6 @@
-import {resizeCanvasToDisplaySize} from "./canvas"
+import * as glUtil from "./glUtil"
 import {Player} from "./solver"
-import {Vec2, Vec3, degToRad, Ray} from "./math"
+import {Vec2, degToRad, Ray} from "./math"
 
 export class Renderer {
 	gl: WebGLRenderingContext
@@ -14,67 +14,16 @@ export class Renderer {
 	constructor(canvas: HTMLCanvasElement) {
 		this.canvas = canvas
 
-		const gl = this.canvas.getContext("webgl")
-		if (!gl) {
-			throw "Failed to load WebGL context"
-		}
-		this.gl = gl
+		this.gl = glUtil.loadContext(canvas)
 
 		this.refreshCanvas()
 
-		const vertexShaderSrc = `
-			// an attribute will receive data from a buffer
-			attribute vec2 a_position;
-			attribute vec2 a_texcoord;
-			attribute float a_dist;
-
-			uniform vec2 u_resolution;
-
-			varying vec2 v_texcoord;
-			varying float v_dist;
-
-			// all shaders have a main function
-			void main() {
-				// convert from pixel->clip space
-				// convert the position from pixels to 0.0 to 1.0
-				vec2 clipSpace = (a_position / u_resolution * 2.0) - 1.0;
-				
-				// gl_Position is a special variable a vertex shader
-				// is responsible for setting
-				gl_Position = vec4(clipSpace.x, clipSpace.y * -1.0, 0, 1);
-
-				// Pass the texcoord to fragment shader
-				v_texcoord = a_texcoord;
-
-				// Pass the dist value to fragment shader
-				v_dist = a_dist;
-			}
-		`
-		const fragmentShaderSrc = `
-			// fragment shaders don't have a default precision so we need to pick one.
-			// mediump is a good default. it means "medium precision"
-			precision mediump float;
-
-			uniform vec4 u_color;
-			uniform sampler2D u_texture;
-
-			varying vec2 v_texcoord;
-			varying float v_dist;
-
-			void main() {
-				// gl_FragColor is a special variable a fragment shader is responsible for setting
-				if (u_color.x > 0.0 || u_color.y > 0.0 || u_color.z > 0.0) {
-					gl_FragColor = u_color;
-				} else {
-					gl_FragColor = texture2D(u_texture, v_texcoord) * v_dist;
-				}
-			}
-		`
-
-		const vertexShader = this.createShader(this.gl.VERTEX_SHADER, vertexShaderSrc)
-		const fragmentShader = this.createShader(this.gl.FRAGMENT_SHADER, fragmentShaderSrc)
-
-		this.program = this.createProgram(vertexShader, fragmentShader)
+		const programInfo = glUtil.createProgramInfo(
+			this.gl,
+			"vertex-shader-walls",
+			"fragment-shader-walls"
+		)
+		this.program = programInfo.program
 
 		this.attributes = {}
 		this.uniforms = {}
@@ -118,22 +67,22 @@ export class Renderer {
 		// Set the resolution uniform
 		const resolutionUniformLocation = this.gl.getUniformLocation(this.program, "u_resolution")
 		this.gl.uniform2f(resolutionUniformLocation, this.gl.canvas.width, this.gl.canvas.height)
-		console.log(`~~~Resolution~~~\n(${gl.canvas.width} x ${gl.canvas.height}) px`)
+		console.log(`~~~Resolution~~~\n(${this.gl.canvas.width} x ${this.gl.canvas.height}) px`)
 
 		this.textures = {
 			1: this.gl.createTexture() as WebGLTexture
 		}
-		this.gl.bindTexture(gl.TEXTURE_2D, this.textures[1])
+		this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[1])
 
-		this.gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE,
 			new Uint8Array([0, 0, 255, 255]))
 
 		const image = new Image()
 		image.src = "assets/tex_atlas.png"
 		image.addEventListener("load", () => {
 			this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[1])
-			this.gl.texImage2D(this.gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
-			this.gl.generateMipmap(gl.TEXTURE_2D)
+			this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
+			this.gl.generateMipmap(this.gl.TEXTURE_2D)
 		})
 	}
 
@@ -146,61 +95,13 @@ export class Renderer {
 	}
 
 	refreshCanvas() {
-		resizeCanvasToDisplaySize(this.canvas)
+		glUtil.resizeCanvasToDisplaySize(this.canvas)
 
 		this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height)
 
 		// Clear the canvas
 		this.gl.clearColor(0, 0, 0, 0)
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT)
-	}
-
-	createShader(
-		type: number,
-		source: string
-	): WebGLShader {
-		const shader = this.gl.createShader(type)
-
-		if (!shader) {
-			throw new Error("Failed to create shader")
-		}
-
-		this.gl.shaderSource(shader, source)
-		this.gl.compileShader(shader)
-
-		const success = this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)
-		if (!success) {
-			const infoLog = this.gl.getShaderInfoLog(shader)
-			this.gl.deleteShader(shader)
-			throw new Error(infoLog ?? 'Unknown error occurred')
-		}
-
-		return shader
-	}
-
-	createProgram(
-		vertexShader: WebGLShader,
-		fragmentShader: WebGLShader,
-	): WebGLProgram {
-		const program = this.gl.createProgram()
-
-		if (!program) {
-			throw new Error("Failed to create program")
-		}
-
-		this.gl.attachShader(program, vertexShader)
-		this.gl.attachShader(program, fragmentShader)
-
-		this.gl.linkProgram(program)
-
-		const success = this.gl.getProgramParameter(program, this.gl.LINK_STATUS)
-		if (!success) {
-			const infoLog = this.gl.getProgramInfoLog(program)
-			this.gl.deleteProgram(program)
-			throw new Error(infoLog ?? 'Unknown error occurred')
-		}
-
-		return program
 	}
 
 	drawGrid(nx: number, ny: number, cellWidth: number, cellHeight: number) {
@@ -443,12 +344,12 @@ export class Renderer {
 		rays.forEach(({pos, cellIdx, cellVal, distToAxis}, i) => {
 			const perc = 1 - pos.mag / rayDistCap
 			distIndices.push(
-				perc, perc,
-				perc, perc,
-				perc, perc,
-				perc, perc,
-				perc, perc,
-				perc, perc,
+				perc,
+				perc,
+				perc,
+				perc,
+				perc,
+				perc,
 			)
 
 			// angle of ray relative to center of horizontal FOV
@@ -567,7 +468,7 @@ export class Renderer {
 
 		this.gl.vertexAttribPointer(
 			this.attributes["a_dist"],
-			2,
+			1,
 			this.gl.FLOAT,
 			false,
 			0,
