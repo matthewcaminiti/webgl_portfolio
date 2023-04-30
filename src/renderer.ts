@@ -1,6 +1,6 @@
 import * as glUtil from "./glUtil"
-import {Player} from "./solver"
-import {Vec2, degToRad, Ray} from "./math"
+import {Player, Sprite} from "./solver"
+import {Vec2, degToRad, Ray, radToDeg, absAngleDiff} from "./math"
 
 export class Renderer {
 	gl: WebGLRenderingContext
@@ -20,21 +20,9 @@ export class Renderer {
 			walls: glUtil.createProgramInfo(this.gl, "v-walls", "f-walls")
 		}
 
-		this.textures = {
-			1: this.gl.createTexture() as WebGLTexture
-		}
-		this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[1])
+		this.textures = {}
 
-		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE,
-			new Uint8Array([0, 0, 255, 255]))
-
-		const image = new Image()
-		image.src = "assets/tex_atlas.png"
-		image.addEventListener("load", () => {
-			this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[1])
-			this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
-			this.gl.generateMipmap(this.gl.TEXTURE_2D)
-		})
+		this.loadAssets()
 	}
 
 	get w() {
@@ -43,6 +31,42 @@ export class Renderer {
 
 	get h() {
 		return this.gl.canvas.height
+	}
+
+	loadAssets() {
+		const loadAsset = (filepath: string) => {
+			const comps = filepath.split('/')
+			const filenamePrefix = comps[comps.length - 1].split('.')[0]
+
+			this.textures[filenamePrefix] = this.gl.createTexture() as WebGLTexture
+			this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[filenamePrefix])
+
+			this.gl.texImage2D(
+				this.gl.TEXTURE_2D,
+				0,
+				this.gl.RGBA,
+				1,
+				1,
+				0,
+				this.gl.RGBA,
+				this.gl.UNSIGNED_BYTE,
+				new Uint8Array([0, 0, 255, 255])
+			)
+
+			const image = new Image()
+			image.src = filepath
+			image.addEventListener("load", () => {
+				this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[filenamePrefix])
+				this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
+				this.gl.generateMipmap(this.gl.TEXTURE_2D)
+			})
+		}
+
+		const textureAssets = ['atlas.png']
+		textureAssets.forEach((filename) => loadAsset(`assets/textures/${filename}`))
+
+		const spriteAssets = ['DIRT_1A.png']
+		spriteAssets.forEach((filename) => loadAsset(`assets/sprites/${filename}`))
 	}
 
 	refreshCanvas() {
@@ -385,7 +409,7 @@ export class Renderer {
 		const uniforms = {
 			u_resolution: [this.w, this.h],
 			u_color: [0, 0, 0, 1],
-			u_texture: this.textures[1],
+			u_texture: this.textures['atlas'],
 		}
 		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
 
@@ -468,5 +492,76 @@ export class Renderer {
 			0, // offset
 			indices.length/2 // num vertices per instance
 		)
+	}
+
+	drawSprites(fov: Vec2, playerPos: Vec2, lookdir: number, sprites: Array<Sprite>) {
+		const cellHeight = 50
+		const projectionDist = cellHeight / Math.tan(fov.y/2) * 0.5
+
+		sprites.forEach((sprite) => {
+			const vsprite = sprite.pos.sub(playerPos)
+
+			const theta = Math.atan2(vsprite.y, vsprite.x)
+			const d = lookdir - theta
+			const absd = absAngleDiff(lookdir, theta)
+
+			if (Math.abs(absd) > fov.x/2) {
+				return
+			}
+
+			const spriteDist = vsprite.mag
+
+			const adjX = spriteDist * Math.sin(d)
+			const adjY = spriteDist * Math.cos(Math.abs(d))
+
+			const relativeY = adjY !== 0 ? projectionDist / adjY : 0
+
+			// width of half of FOV, adjY far away
+			const fovAdjX = adjY * Math.tan(fov.x/2)
+
+			const relativeHalfScreenRatio = adjX / fovAdjX
+			const xpos = this.w/2 - relativeHalfScreenRatio * this.w/2
+
+			const topLeft = {
+				x: xpos,
+				y: this.h/2 - sprite.h * relativeY * .5
+			}
+
+			const botRight = {
+				x: topLeft.x + sprite.w * relativeY,
+				y: topLeft.y + sprite.h * relativeY
+			}
+
+			const indices: Array<number> = [
+				topLeft.x, topLeft.y,
+				topLeft.x, botRight.y,
+				botRight.x, botRight.y,
+				topLeft.x, topLeft.y,
+				botRight.x, topLeft.y,
+				botRight.x, botRight.y,
+			]
+
+			this.gl.useProgram(this.programs.plainColor.program)
+
+			const attribs: Record<string, glUtil.AttribArray> = {
+				a_position: {numComponents: 2, data: new Float32Array(indices)}
+			}
+
+			const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribs)
+
+			glUtil.setBuffersAndAttributes(this.programs.plainColor.attributeSetters, bufferInfo)
+
+			const uniforms = {
+				u_color: [0, 1, 0, 1]
+			}
+
+			glUtil.setUniforms(this.programs.plainColor.uniformSetters, uniforms)
+
+			this.gl.drawArrays(
+				this.gl.TRIANGLES,
+				0,
+				indices.length/2
+			)
+		})
 	}
 }

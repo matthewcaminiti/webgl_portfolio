@@ -27,6 +27,10 @@ export class Vec2 {
 	scale(n: number): Vec2 {
 		return new Vec2(this.x * n, this.y * n)
 	}
+
+	dot(v: Vec2): number {
+		return this.x * v.x + this.y * v.y
+	}
 }
 
 export class Vec3 {
@@ -51,6 +55,12 @@ export const degToRad = (deg: number): number => {
 
 export const radToDeg = (rad: number): number => {
 	return rad * 180 / Math.PI
+}
+
+// return the diff between two angles (input radians, output radians), clamped [-180, -180]
+export const absAngleDiff = (a1: number, a2: number): number => {
+	const x = a1 - a2
+	return x + (x > Math.PI ? -2*Math.PI : x < -1*Math.PI ? 2*Math.PI : 0)
 }
 
 export interface Ray {

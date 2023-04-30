@@ -313,7 +313,7 @@ export const createBufferInfoFromArrays = (
 		throw 'Cannot create buffer info without `a_position` attribute'
 	}
 
-	if (attribArrays.a_position.data.length % attribArrays.a_position.numComponents) {
+	if (attribArrays.a_position.data.length % attribArrays.a_position.numComponents !== 0) {
 		throw '`a_position` data length and num components do not match!'
 	}
 

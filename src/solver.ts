@@ -1,5 +1,4 @@
-import {Vec2, Vec3, Ray} from "./math"
-import {colorCodes} from "./consts"
+import {Vec2, Ray} from "./math"
 
 export class Player {
 	pos: Vec2
@@ -19,6 +18,32 @@ export class Player {
 	}
 }
 
+export class Sprite {
+	pos: Vec2
+	z: number
+	w: number
+	h: number
+	asset: string
+	onClick: () => void
+
+	constructor(
+		x: number,
+		y: number,
+		z: number,
+		w: number,
+		h: number,
+		asset: string,
+		onClick: () => void
+	) {
+		this.pos = new Vec2(x, y)
+		this.z = z
+		this.w = w
+		this.h = h
+		this.asset = asset
+		this.onClick = onClick
+	}
+}
+
 export class Solver {
 	w: number
 	h: number
@@ -33,6 +58,7 @@ export class Solver {
 	rayDistCap: number
 	fov: Vec2
 	mousePos: Vec2
+	sprites: Array<Sprite>
 
 	constructor(
 		w: number,
@@ -91,6 +117,18 @@ export class Solver {
 		this.rayDistCap = 1000
 		this.fov = new Vec2(Math.PI/2, Math.PI/2)
 		this.mousePos = new Vec2(0, 0)
+
+		this.sprites = [
+			new Sprite(
+				500,
+				500,
+				100,
+				100,
+				25,
+				"DIRT_1A",
+				() => console.log("hey")
+			)
+		]
 	}
 
 	bindControls(canvas: HTMLCanvasElement) {
@@ -181,9 +219,17 @@ export class Solver {
 			}
 		})
 
+
 		if (this.mousePos.x || this.mousePos.y) {
 			this.player.lookdir.x += this.mousePos.x * dt * 0.1
 			this.player.lookdir.y += this.mousePos.y * dt * 0.1
+
+			// clamp to [-Math.PI, Math.PI] i.e [-180, 180]
+			if (this.player.lookdir.x > Math.PI) {
+				this.player.lookdir.x = -2*Math.PI + this.player.lookdir.x
+			} else if (this.player.lookdir.x <= -1*Math.PI) {
+				this.player.lookdir.x += 2*Math.PI
+			}
 
 			this.player.movedir = this.player.lookdir.x
 

@@ -114,7 +114,6 @@ void main() {
 }
 </script>
 <script id="v-walls" type="x-shader/x-vector">
-// an attribute will receive data from a buffer
 attribute vec2 a_position;
 attribute vec2 a_texcoord;
 attribute float a_dist;
@@ -124,26 +123,16 @@ uniform vec2 u_resolution;
 varying vec2 v_texcoord;
 varying float v_dist;
 
-// all shaders have a main function
 void main() {
-	// convert from pixel->clip space
-	// convert the position from pixels to 0.0 to 1.0
 	vec2 clipSpace = (a_position / u_resolution * 2.0) - 1.0;
 
-	// gl_Position is a special variable a vertex shader
-	// is responsible for setting
 	gl_Position = vec4(clipSpace.x, clipSpace.y * -1.0, 0, 1);
 
-	// Pass the texcoord to fragment shader
 	v_texcoord = a_texcoord;
-
-	// Pass the dist value to fragment shader
 	v_dist = a_dist;
 }
 </script>
 <script id="f-walls" type="x-shader/x-fragment">
-// fragment shaders don't have a default precision so we need to pick one.
-// mediump is a good default. it means "medium precision"
 precision mediump float;
 
 uniform sampler2D u_texture;
