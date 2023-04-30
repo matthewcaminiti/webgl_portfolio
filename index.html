@@ -146,19 +146,13 @@ void main() {
 // mediump is a good default. it means "medium precision"
 precision mediump float;
 
-uniform vec4 u_color;
 uniform sampler2D u_texture;
 
 varying vec2 v_texcoord;
 varying float v_dist;
 
 void main() {
-	// gl_FragColor is a special variable a fragment shader is responsible for setting
-	if (u_color.x > 0.0 || u_color.y > 0.0 || u_color.z > 0.0) {
-		gl_FragColor = u_color;
-	} else {
-		gl_FragColor = texture2D(u_texture, v_texcoord) * v_dist;
-	}
+	gl_FragColor = texture2D(u_texture, v_texcoord) * v_dist;
 }
 </script>
 <body>

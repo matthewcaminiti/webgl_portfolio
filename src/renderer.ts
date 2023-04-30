@@ -446,7 +446,7 @@ export class Renderer {
 			this.w, relativeH,
 		]
 
-		this.gl.useProgram(this.programs.walls.program)
+		this.gl.useProgram(this.programs.plainColor.program)
 
 		const attribs: Record<string, glUtil.AttribArray> = {
 			a_position: {numComponents: 2, data: new Float32Array(indices)}
@@ -454,14 +454,14 @@ export class Renderer {
 
 		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribs)
 
-		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
+		glUtil.setBuffersAndAttributes(this.programs.plainColor.attributeSetters, bufferInfo)
 
 		const uniforms: Record<string, any> = {
 			u_resolution: [this.w, this.h],
 			u_color: [0.384, 0.396, 0.404, 1]
 		}
 
-		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
+		glUtil.setUniforms(this.programs.plainColor.uniformSetters, uniforms)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
