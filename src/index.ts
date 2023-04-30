@@ -40,7 +40,7 @@ const main = () => {
 		renderer.drawGround(solver.fov.y, solver.player.lookdir.y)
 		renderer.drawSky(solver.fov.y, solver.player.lookdir.y)
 		renderer.drawWalls(rays, solver.rayDistCap, solver.fov, solver.player.lookdir.y)
-		renderer.drawSprites(solver.fov, solver.player.pos, solver.player.lookdir.x, solver.sprites)
+		renderer.drawSprites(solver.fov, solver.player.pos, solver.player.lookdir, solver.sprites)
 		if (controlPanel.is2dVisible) {
 			renderer.drawCells(solver.nx, solver.cellWidth, solver.cellHeight, solver.cells)
 			renderer.drawGrid(solver.nx, solver.ny, solver.cellWidth, solver.cellHeight)

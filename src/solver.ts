@@ -122,9 +122,9 @@ export class Solver {
 			new Sprite(
 				500,
 				500,
+				-100,
 				100,
 				100,
-				25,
 				"DIRT_1A",
 				() => console.log("hey")
 			)

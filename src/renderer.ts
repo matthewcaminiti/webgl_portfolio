@@ -494,16 +494,18 @@ export class Renderer {
 		)
 	}
 
-	drawSprites(fov: Vec2, playerPos: Vec2, lookdir: number, sprites: Array<Sprite>) {
-		const cellHeight = 50
-		const projectionDist = cellHeight / Math.tan(fov.y/2) * 0.5
+	drawSprites(fov: Vec2, playerPos: Vec2, lookdir: Vec2, sprites: Array<Sprite>) {
+		const projectionPlaneHeight = 100
+		const projectionDist = projectionPlaneHeight / Math.tan(fov.y/2) * 0.5
+
+		const relative = lookdir.y / fov.y * .5
+		const relativeH = this.h * (0.5 + relative)
 
 		sprites.forEach((sprite) => {
 			const vsprite = sprite.pos.sub(playerPos)
 
 			const theta = Math.atan2(vsprite.y, vsprite.x)
-			const d = lookdir - theta
-			const absd = absAngleDiff(lookdir, theta)
+			const absd = absAngleDiff(lookdir.x, theta)
 
 			if (Math.abs(absd) > fov.x/2) {
 				return
@@ -511,6 +513,7 @@ export class Renderer {
 
 			const spriteDist = vsprite.mag
 
+			const d = lookdir.x - theta
 			const adjX = spriteDist * Math.sin(d)
 			const adjY = spriteDist * Math.cos(Math.abs(d))
 
@@ -523,8 +526,8 @@ export class Renderer {
 			const xpos = this.w/2 - relativeHalfScreenRatio * this.w/2
 
 			const topLeft = {
-				x: xpos,
-				y: this.h/2 - sprite.h * relativeY * .5
+				x: xpos - sprite.w * relativeY * .5,
+				y: relativeH - sprite.z * relativeY - sprite.h * relativeY * .5
 			}
 
 			const botRight = {
