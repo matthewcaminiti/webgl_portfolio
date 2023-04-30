@@ -15,14 +15,9 @@ export class Renderer {
 
 		this.refreshCanvas()
 
-		const wallProgram = glUtil.createProgramInfo(
-			this.gl,
-			"vertex-shader-walls",
-			"fragment-shader-walls"
-		)
-
 		this.programs = {
-			walls: wallProgram
+			plainColor: glUtil.createProgramInfo(this.gl, "v-plainColor", "f-plainColor"),
+			walls: glUtil.createProgramInfo(this.gl, "v-walls", "f-walls")
 		}
 
 		this.textures = {
@@ -69,7 +64,7 @@ export class Renderer {
 			indices.push(0, i * cellHeight, nx * cellWidth, i * cellHeight)
 		}
 
-		this.gl.useProgram(this.programs.walls.program)
+		this.gl.useProgram(this.programs.plainColor.program)
 
 		const attribArrays: Record<string, glUtil.AttribArray> = {
 			a_position: {numComponents: 2, data: new Float32Array(indices)},
@@ -77,14 +72,14 @@ export class Renderer {
 
 		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribArrays)
 
-		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
+		glUtil.setBuffersAndAttributes(this.programs.plainColor.attributeSetters, bufferInfo)
 
 		const uniforms = {
 			u_resolution: [this.w, this.h],
 			u_color: [0.1, 0.1, 0.1, 1]
 		}
 
-		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
+		glUtil.setUniforms(this.programs.plainColor.uniformSetters, uniforms)
 
 		this.gl.drawArrays(
 			this.gl.LINES,
@@ -95,7 +90,6 @@ export class Renderer {
 
 	drawCells(nx: number, cellWidth: number, cellHeight: number, cells: Array<number>) {
 		let indices: Array<number> = []
-		let texIndices: Array<number> = []
 
 		for (let i = 0; i < cells.length; i++) {
 			if (!cells[i]) continue
@@ -110,33 +104,24 @@ export class Renderer {
 				x, y + cellWidth,
 				x + cellWidth, y + cellHeight,
 			)
-			texIndices.push(
-				0, 0,
-				1, 0,
-				1, 1,
-				0, 0,
-				0, 1,
-				1, 1,
-			)
 		}
 
-		this.gl.useProgram(this.programs.walls.program)
+		this.gl.useProgram(this.programs.plainColor.program)
 
 		const attribArrays: Record<string, glUtil.AttribArray> = {
 			a_position: {numComponents: 2, data: new Float32Array(indices)},
-			a_texcoord: {numComponents: 2, data: new Float32Array(texIndices)}
 		}
 
 		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribArrays)
 
-		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
+		glUtil.setBuffersAndAttributes(this.programs.plainColor.attributeSetters, bufferInfo)
 
 		const uniforms = {
 			u_resolution: [this.w, this.h],
 			u_color: [0.8, 0.8, 0.8, 1]
 		}
 
-		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
+		glUtil.setUniforms(this.programs.plainColor.uniformSetters, uniforms)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
@@ -168,7 +153,7 @@ export class Renderer {
 			prevPoint.y = newY
 		}
 
-		this.gl.useProgram(this.programs.walls.program)
+		this.gl.useProgram(this.programs.plainColor.program)
 
 		const attribArrays: Record<string, glUtil.AttribArray> = {
 			a_position: {numComponents: 2, data: new Float32Array(indices)}
@@ -176,14 +161,14 @@ export class Renderer {
 
 		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribArrays)
 
-		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
+		glUtil.setBuffersAndAttributes(this.programs.plainColor.attributeSetters, bufferInfo)
 
 		const uniforms = {
 			u_resolution: [this.w, this.h],
 			u_color: [1, 1, 1, 1]
 		}
 
-		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
+		glUtil.setUniforms(this.programs.plainColor.uniformSetters, uniforms)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
@@ -207,14 +192,14 @@ export class Renderer {
 
 			const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribArrays)
 
-			glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
+			glUtil.setBuffersAndAttributes(this.programs.plainColor.attributeSetters, bufferInfo)
 
 			const uniforms = {
 				u_resolution: [this.w, this.h],
 				u_color: [0.1, 0.1, 0.1, 1]
 			}
 
-			glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
+			glUtil.setUniforms(this.programs.plainColor.uniformSetters, uniforms)
 		}
 
 		this.gl.drawArrays(
@@ -225,14 +210,14 @@ export class Renderer {
 	}
 
 	drawRays(origin: Vec2, rays: Array<Vec2>) {
-		this.gl.useProgram(this.programs.walls.program)
+		this.gl.useProgram(this.programs.plainColor.program)
 
 		const uniforms: Record<string, any> = {
 			u_resolution: [this.w, this.h],
 			u_color: [1, 1, 1, 1]
 		}
 
-		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
+		glUtil.setUniforms(this.programs.plainColor.uniformSetters, uniforms)
 
 		const indices: Array<number> = []
 		rays.forEach((ray) => {
@@ -268,7 +253,7 @@ export class Renderer {
 
 		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribs)
 
-		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
+		glUtil.setBuffersAndAttributes(this.programs.plainColor.attributeSetters, bufferInfo)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
@@ -424,7 +409,7 @@ export class Renderer {
 			this.w, this.h,
 		]
 
-		this.gl.useProgram(this.programs.walls.program)
+		this.gl.useProgram(this.programs.plainColor.program)
 
 		const attribArrays: Record<string, glUtil.AttribArray> = {
 			a_position: {numComponents: 2, data: new Float32Array(indices)}
@@ -432,14 +417,14 @@ export class Renderer {
 
 		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribArrays)
 
-		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
+		glUtil.setBuffersAndAttributes(this.programs.plainColor.attributeSetters, bufferInfo)
 
 		const uniforms = {
 			u_resolution: [this.w, this.h],
 			u_color: [0.475, 0.490, 0.498, 1]
 		}
 
-		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
+		glUtil.setUniforms(this.programs.plainColor.uniformSetters, uniforms)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
