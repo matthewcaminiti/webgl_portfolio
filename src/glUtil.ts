@@ -1,3 +1,13 @@
+/*
+Lots of the utils in here were solidly inspired by the WebGL fundamentals king
+
+https://github.com/gfxfundamentals/webgl-fundamentals/blob/a1e698333c08be38acf1536f2b98494b14fff7cc/webgl/resources/webgl-utils.js
+
+Most modifications were to clean up and simplify over-complex code, and to limit functionality
+to 2d operations
+
+*/
+
 export const resizeCanvasToDisplaySize = (canvas: HTMLCanvasElement): boolean => {
 	// Lookup the size the browser is displaying the canvas in CSS pixels
 	const displayWidth = canvas.clientWidth;
