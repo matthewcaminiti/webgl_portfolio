@@ -83,7 +83,7 @@ const createProgram = (
 	return program
 }
 
-export const createUniformSetters = (
+const createUniformSetters = (
 	gl: WebGLRenderingContext,
 	program: WebGLProgram
 ): Record<string, (x: any) => void> => {
@@ -189,7 +189,7 @@ export interface Attrib {
 	offset?: number,
 }
 
-export const createAttributeSetters = (
+const createAttributeSetters = (
 	gl: WebGLRenderingContext,
 	program: WebGLProgram
 ): Record<string, (x: Attrib) => void> => {
