@@ -144,7 +144,7 @@ export const createUniformSetters = (
 				}
 
 				const _textureUnit = textureUnit++
-				return (texture) => {
+				return (texture: WebGLTexture) => {
 					gl.uniform1i(location, _textureUnit)
 					gl.activeTexture(gl.TEXTURE0 + _textureUnit)
 					gl.bindTexture(bindPoint, texture)
@@ -279,18 +279,15 @@ export interface BufferInfo {
 	numElements: number,
 	attribs: Record<string, Attrib>
 }
-/*
-Example
 
-const attribArrays = {
-	a_position: { numComponents: 2, data: [...] },
-	a_texcoord: { numComponents: 2, data: [...] },
-	a_dist: { numComponents: 1, data: [...] },
+export interface AttribArray {
+	numComponents: number,
+	data: Float32Array | Float64Array
 }
-*/
+
 export const createBufferInfoFromArrays = (
 	gl: WebGLRenderingContext,
-	attribArrays: Record<string, {numComponents: number, data: Float64Array}>, // should specify value type, something like: Array<number> | Float32Array | Float64Array
+	attribArrays: Record<string, AttribArray>,
 ): BufferInfo => {
 	const attribs: Record<string, Attrib> = {}
 
@@ -324,6 +321,18 @@ export const setBuffersAndAttributes = (
 		const setter = setters[attribName]
 		if (setter) {
 			setter(bufferInfo.attribs[attribName])
+		}
+	})
+}
+
+export const setUniforms = (
+	setters: Record<string, (x: any) => void>,
+	uniforms: Record<string, any>
+) => {
+	Object.keys(uniforms).forEach((uniformName) => {
+		const setter = setters[uniformName]
+		if (setter) {
+			setter(uniforms[uniformName])
 		}
 	})
 }

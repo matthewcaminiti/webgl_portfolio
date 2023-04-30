@@ -5,10 +5,7 @@ import {Vec2, degToRad, Ray} from "./math"
 export class Renderer {
 	gl: WebGLRenderingContext
 	canvas: HTMLCanvasElement
-	program: WebGLProgram
-	attributes: Record<string, number>
-	uniforms: Record<string, WebGLUniformLocation>
-	buffers: Record<string, WebGLBuffer>
+	programs: Record<string, glUtil.ProgramInfo>
 	textures: Record<string, WebGLTexture>
 
 	constructor(canvas: HTMLCanvasElement) {
@@ -18,56 +15,15 @@ export class Renderer {
 
 		this.refreshCanvas()
 
-		const programInfo = glUtil.createProgramInfo(
+		const wallProgram = glUtil.createProgramInfo(
 			this.gl,
 			"vertex-shader-walls",
 			"fragment-shader-walls"
 		)
-		this.program = programInfo.program
 
-		this.attributes = {}
-		this.uniforms = {}
-		this.buffers = {}
-
-		this.attributes["a_position"] = this.gl.getAttribLocation(this.program, "a_position")
-		const positionBuffer = this.gl.createBuffer()
-		if (!positionBuffer) {
-			throw new Error("Failed to create position buffer")
+		this.programs = {
+			walls: wallProgram
 		}
-		this.buffers["a_position"] = positionBuffer
-
-		this.attributes["a_texcoord"] = this.gl.getAttribLocation(this.program, "a_texcoord")
-		const texcoordBuffer = this.gl.createBuffer()
-		if (!texcoordBuffer) {
-			throw new Error("Failed to create tex coord buffer")
-		}
-		this.buffers["a_texcoord"] = texcoordBuffer
-
-		this.attributes["a_dist"] = this.gl.getAttribLocation(this.program, "a_dist")
-		const distBuffer = this.gl.createBuffer()
-		if (!distBuffer) {
-			throw new Error("Failed to create a_dist buffer")
-		}
-		this.buffers["a_dist"] = distBuffer
-
-		const colorLocation = this.gl.getUniformLocation(this.program, "u_color")
-		if (!colorLocation) {
-			throw new Error("Failed to get 'u_color' location")
-		}
-		this.uniforms["u_color"] = colorLocation
-
-		const textureLocation = this.gl.getUniformLocation(this.program, "u_texture")
-		if (!textureLocation) {
-			throw new Error("Failed to get 'u_texture' location")
-		}
-		this.uniforms["u_texture"] = textureLocation
-
-		this.gl.useProgram(this.program)
-
-		// Set the resolution uniform
-		const resolutionUniformLocation = this.gl.getUniformLocation(this.program, "u_resolution")
-		this.gl.uniform2f(resolutionUniformLocation, this.gl.canvas.width, this.gl.canvas.height)
-		console.log(`~~~Resolution~~~\n(${this.gl.canvas.width} x ${this.gl.canvas.height}) px`)
 
 		this.textures = {
 			1: this.gl.createTexture() as WebGLTexture
@@ -113,19 +69,22 @@ export class Renderer {
 			indices.push(0, i * cellHeight, nx * cellWidth, i * cellHeight)
 		}
 
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
+		this.gl.useProgram(this.programs.walls.program)
 
-		this.gl.vertexAttribPointer(
-			this.attributes["a_position"], // location
-			2, // size (num values to pull from buffer per iteration)
-			this.gl.FLOAT, // type of data in buffer
-			false, // normalize
-			0, // stride (0 = compute from size and type above)
-			0 // offset in buffer
-		)
+		const attribArrays: Record<string, glUtil.AttribArray> = {
+			a_position: {numComponents: 2, data: new Float32Array(indices)},
+		}
 
-		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribArrays)
+
+		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
+
+		const uniforms = {
+			u_resolution: [this.w, this.h],
+			u_color: [0.1, 0.1, 0.1, 1]
+		}
+
+		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
 
 		this.gl.drawArrays(
 			this.gl.LINES,
@@ -161,34 +120,23 @@ export class Renderer {
 			)
 		}
 
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
+		this.gl.useProgram(this.programs.walls.program)
 
-		this.gl.vertexAttribPointer(
-			this.attributes["a_position"], // location
-			2, // size (num values to pull from buffer per iteration)
-			this.gl.FLOAT, // type of data in buffer
-			false, // normalize
-			0, // stride (0 = compute from size and type above)
-			0 // offset in buffer
-		)
+		const attribArrays: Record<string, glUtil.AttribArray> = {
+			a_position: {numComponents: 2, data: new Float32Array(indices)},
+			a_texcoord: {numComponents: 2, data: new Float32Array(texIndices)}
+		}
 
-		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribArrays)
 
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_texcoord"])
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(texIndices), this.gl.STATIC_DRAW)
+		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
 
-		this.gl.vertexAttribPointer(
-			this.attributes["a_texcoord"],
-			2,
-			this.gl.FLOAT,
-			false,
-			0,
-			0,
-		)
-		this.gl.enableVertexAttribArray(this.attributes["a_texcoord"])
+		const uniforms = {
+			u_resolution: [this.w, this.h],
+			u_color: [0.8, 0.8, 0.8, 1]
+		}
 
-		this.gl.uniform1i(this.uniforms["u_texture"], 0)
+		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
@@ -220,19 +168,22 @@ export class Renderer {
 			prevPoint.y = newY
 		}
 
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
+		this.gl.useProgram(this.programs.walls.program)
 
-		this.gl.vertexAttribPointer(
-			this.attributes["a_position"], // location
-			2, // size (num values to pull from buffer per iteration)
-			this.gl.FLOAT, // type of data in buffer
-			false, // normalize
-			0, // stride (0 = compute from size and type above)
-			0 // offset in buffer
-		)
+		const attribArrays: Record<string, glUtil.AttribArray> = {
+			a_position: {numComponents: 2, data: new Float32Array(indices)}
+		}
 
-		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribArrays)
+
+		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
+
+		const uniforms = {
+			u_resolution: [this.w, this.h],
+			u_color: [1, 1, 1, 1]
+		}
+
+		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
@@ -249,21 +200,22 @@ export class Renderer {
 			Math.cos(player.lookdir.x - Math.PI/8) * player.r + player.pos.x, Math.sin(player.lookdir.x - Math.PI/8) * player.r + player.pos.y,
 		]
 
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(dirLineIndices), this.gl.STATIC_DRAW)
+		{
+			const attribArrays: Record<string, glUtil.AttribArray> = {
+				a_position: {numComponents: 2, data: new Float32Array(dirLineIndices)}
+			}
 
-		this.gl.vertexAttribPointer(
-			this.attributes["a_position"], // location
-			2, // size (num values to pull from buffer per iteration)
-			this.gl.FLOAT, // type of data in buffer
-			false, // normalize
-			0, // stride (0 = compute from size and type above)
-			0 // offset in buffer
-		)
+			const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribArrays)
 
-		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+			glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
 
-		this.gl.uniform1i(this.uniforms["u_texture"], 1)
+			const uniforms = {
+				u_resolution: [this.w, this.h],
+				u_color: [0.1, 0.1, 0.1, 1]
+			}
+
+			glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
+		}
 
 		this.gl.drawArrays(
 			this.gl.LINES,
@@ -272,59 +224,57 @@ export class Renderer {
 		)
 	}
 
-	drawRay(v: Vec2, playerPos: Vec2) {
-		const circlePos = playerPos.add(v)
+	drawRays(origin: Vec2, rays: Array<Vec2>) {
+		this.gl.useProgram(this.programs.walls.program)
 
-		const r = 2
-		const _r = Math.floor(r * 0.8)
-		const steps = _r <= 10 ? 10 : _r
-		let indices: Array<number> = Array(steps*6).map(() => 0)
-
-		let prevPoint = {x : circlePos.x + r, y: circlePos.y}
-		for (let i = 1; i <= steps; i++) {
-			// push origin, prev point, next point
-			let newX = r * Math.cos(degToRad((360/steps) * i)) + circlePos.x
-			let newY = r * Math.sin(degToRad((360/steps) * i)) + circlePos.y
-
-			let adjIdx = (i - 1) * 6
-			indices[adjIdx] = circlePos.x
-			indices[adjIdx + 1] = circlePos.y
-			indices[adjIdx + 2] = prevPoint.x
-			indices[adjIdx + 3] = prevPoint.y
-			indices[adjIdx + 4] = newX
-			indices[adjIdx + 5] = newY
-
-			prevPoint.x = newX
-			prevPoint.y = newY
+		const uniforms: Record<string, any> = {
+			u_resolution: [this.w, this.h],
+			u_color: [1, 1, 1, 1]
 		}
 
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
+		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
 
-		this.gl.vertexAttribPointer(
-			this.attributes["a_position"], // location
-			2, // size (num values to pull from buffer per iteration)
-			this.gl.FLOAT, // type of data in buffer
-			false, // normalize
-			0, // stride (0 = compute from size and type above)
-			0 // offset in buffer
-		)
+		const indices: Array<number> = []
+		rays.forEach((ray) => {
+			const circlePos = origin.add(ray)
 
-		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+			const r = 2
+			const _r = Math.floor(r * 0.8)
+			const steps = _r <= 10 ? 10 : _r
 
-		this.gl.uniform1i(this.uniforms["u_texture"], 1)
+			let prevPoint = {x : circlePos.x + r, y: circlePos.y}
+			for (let i = 1; i <= steps; i++) {
+				// push origin, prev point, next point
+				let newX = r * Math.cos(degToRad((360/steps) * i)) + circlePos.x
+				let newY = r * Math.sin(degToRad((360/steps) * i)) + circlePos.y
+
+				indices.push(
+					circlePos.x,
+					circlePos.y,
+					prevPoint.x,
+					prevPoint.y,
+					newX,
+					newY,
+				)
+
+				prevPoint.x = newX
+				prevPoint.y = newY
+			}
+		})
+
+		const attribs: Record<string, glUtil.AttribArray> = {
+			a_position: {numComponents: 2, data: new Float32Array(indices)}
+		}
+
+		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribs)
+
+		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
 			0, // offset
 			indices.length/2 // num vertices per instance
 		)
-	}
-
-	drawRays(origin: Vec2, rays: Array<Vec2>) {
-		rays.forEach((ray) => {
-			this.drawRay(origin, ray)
-		})
 	}
 
 	drawWalls(rays: Array<Ray>, rayDistCap: number, fov: Vec2, lookDirY: number) {
@@ -436,48 +386,23 @@ export class Renderer {
 			)
 		})
 
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
+		this.gl.useProgram(this.programs.walls.program)
 
-		this.gl.vertexAttribPointer(
-			this.attributes["a_position"], // location
-			2, // size (num values to pull from buffer per iteration)
-			this.gl.FLOAT, // type of data in buffer
-			false, // normalize
-			0, // stride (0 = compute from size and type above)
-			0 // offset in buffer
-		)
+		const attribArrays = {
+			a_position: { numComponents: 2, data: new Float32Array(indices)},
+			a_texcoord: { numComponents: 2, data: new Float32Array(texIndices)},
+			a_dist: { numComponents: 1, data: new Float32Array(distIndices)}
+		}
 
-		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribArrays)
 
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_texcoord"])
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(texIndices), this.gl.STATIC_DRAW)
-
-		this.gl.vertexAttribPointer(
-			this.attributes["a_texcoord"],
-			2,
-			this.gl.FLOAT,
-			false,
-			0,
-			0,
-		)
-		this.gl.enableVertexAttribArray(this.attributes["a_texcoord"])
-
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_dist"])
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(distIndices), this.gl.STATIC_DRAW)
-
-		this.gl.vertexAttribPointer(
-			this.attributes["a_dist"],
-			1,
-			this.gl.FLOAT,
-			false,
-			0,
-			0,
-		)
-		this.gl.enableVertexAttribArray(this.attributes["a_dist"])
-
-		this.gl.uniform4f(this.uniforms["u_color"], 0, 0, 0, 1)
-		this.gl.uniform1i(this.uniforms["u_texture"], 0)
+		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
+		const uniforms = {
+			u_resolution: [this.w, this.h],
+			u_color: [0, 0, 0, 1],
+			u_texture: this.textures[1],
+		}
+		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
@@ -499,21 +424,22 @@ export class Renderer {
 			this.w, this.h,
 		]
 
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
+		this.gl.useProgram(this.programs.walls.program)
 
-		this.gl.vertexAttribPointer(
-			this.attributes["a_position"], // location
-			2, // size (num values to pull from buffer per iteration)
-			this.gl.FLOAT, // type of data in buffer
-			false, // normalize
-			0, // stride (0 = compute from size and type above)
-			0 // offset in buffer
-		)
+		const attribArrays: Record<string, glUtil.AttribArray> = {
+			a_position: {numComponents: 2, data: new Float32Array(indices)}
+		}
 
-		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribArrays)
 
-		this.gl.uniform4f(this.uniforms["u_color"], 0.475, 0.490, 0.498, 1)
+		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
+
+		const uniforms = {
+			u_resolution: [this.w, this.h],
+			u_color: [0.475, 0.490, 0.498, 1]
+		}
+
+		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
@@ -535,21 +461,22 @@ export class Renderer {
 			this.w, relativeH,
 		]
 
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers["a_position"])
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(indices), this.gl.STATIC_DRAW)
+		this.gl.useProgram(this.programs.walls.program)
 
-		this.gl.vertexAttribPointer(
-			this.attributes["a_position"], // location
-			2, // size (num values to pull from buffer per iteration)
-			this.gl.FLOAT, // type of data in buffer
-			false, // normalize
-			0, // stride (0 = compute from size and type above)
-			0 // offset in buffer
-		)
+		const attribs: Record<string, glUtil.AttribArray> = {
+			a_position: {numComponents: 2, data: new Float32Array(indices)}
+		}
 
-		this.gl.enableVertexAttribArray(this.attributes["a_position"])
+		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribs)
 
-		this.gl.uniform4f(this.uniforms["u_color"], 0.384, 0.396, 0.404, 1)
+		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
+
+		const uniforms: Record<string, any> = {
+			u_resolution: [this.w, this.h],
+			u_color: [0.384, 0.396, 0.404, 1]
+		}
+
+		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,

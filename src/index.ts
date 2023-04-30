@@ -41,8 +41,8 @@ const main = () => {
 		renderer.drawSky(solver.fov.y, solver.player.lookdir.y)
 		renderer.drawWalls(rays, solver.rayDistCap, solver.fov, solver.player.lookdir.y)
 		if (controlPanel.is2dVisible) {
-			renderer.drawGrid(solver.nx, solver.ny, solver.cellWidth, solver.cellHeight)
 			renderer.drawCells(solver.nx, solver.cellWidth, solver.cellHeight, solver.cells)
+			renderer.drawGrid(solver.nx, solver.ny, solver.cellWidth, solver.cellHeight)
 
 			renderer.drawPlayer(solver.player)
 			renderer.drawRays(solver.player.pos, rays.map((x) => x.pos))
