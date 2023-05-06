@@ -327,7 +327,17 @@ export class Renderer {
 			const xpos = this.w/2 - relativeHalfScreenRatio * this.w/2
 
 			let nextXpos = xpos + xpos - prevXPos
-			if (i < rays.length - 1) {
+			if (rays.length === 1) {
+				// fudge next pos to be a ray at same dist, radIncr theta increase
+				const nextFovAdjustAngle = fov.x/2 - (i+offset+1)*radIncr
+				const nextRayAdjX = rays[i].pos.mag * Math.sin(nextFovAdjustAngle)
+				const nextRayAdjY = rays[i].pos.mag * Math.cos(nextFovAdjustAngle)
+
+				const nextFovAdjX = nextRayAdjY * Math.tan(fov.x/2)
+
+				const nextRelativeHalfScreenRatio = nextRayAdjX / nextFovAdjX
+				nextXpos = this.w/2 - nextRelativeHalfScreenRatio * this.w/2
+			} else if (i < rays.length - 1) {
 				const nextFovAdjustAngle = fov.x/2 - (i+offset+1)*radIncr
 				const nextRayAdjX = rays[i+1].pos.mag * Math.sin(nextFovAdjustAngle)
 				const nextRayAdjY = rays[i+1].pos.mag * Math.cos(nextFovAdjustAngle)
