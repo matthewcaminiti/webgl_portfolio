@@ -34,10 +34,11 @@
 - ~~add camera movement (mouse)~~
 - ~~texture walls+floor+ceiling~~ (floor+ceiling not textured, wolfenstein 3d didnt either)
 - ~~add texture selection (use texture atlas)~~
-- add sprites (always-facing player)
+- ~~add sprites (always-facing player)~~
 
 ### Yolos:
 
+- have sprites "face" set direction
 - texture floor+ceiling
 - verticality, create steps/increase z
 - add jumping
