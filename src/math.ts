@@ -64,8 +64,10 @@ export const absAngleDiff = (a1: number, a2: number): number => {
 }
 
 export interface Ray {
+	index: number,
 	pos: Vec2,
 	cellIdx: number,
 	cellVal: number,
-	distToAxis: number
+	distToAxis: number,
+	relMaxDist: number,
 }

@@ -1,9 +1,9 @@
-import {Vec2, Ray} from "./math"
+import {Vec2, Ray, absAngleDiff} from "./math"
 
 export class Player {
 	pos: Vec2
 	movedir: number
-	lookdir: Vec2
+	lookDir: Vec2
 	r: number
 	v: number
 	turnSpeedRad: number
@@ -11,7 +11,7 @@ export class Player {
 	constructor(x: number, y: number, movedir: number, r: number) {
 		this.pos = new Vec2(x, y)
 		this.movedir = movedir
-		this.lookdir = new Vec2(movedir, 0)
+		this.lookDir = new Vec2(movedir, 0)
 		this.r = r
 		this.v = 150
 		this.turnSpeedRad = 3.0
@@ -21,6 +21,9 @@ export class Player {
 export class Sprite {
 	pos: Vec2
 	z: number
+	zAnchor: number
+	zDir: number
+	mobile: boolean
 	w: number
 	h: number
 	asset: string
@@ -33,14 +36,30 @@ export class Sprite {
 		w: number,
 		h: number,
 		asset: string,
-		onClick: () => void
+		onClick: () => void,
+		mobile: boolean
 	) {
 		this.pos = new Vec2(x, y)
 		this.z = z
+		this.zAnchor = z
+		this.zDir = 1
+		this.mobile = mobile
 		this.w = w
 		this.h = h
 		this.asset = asset
 		this.onClick = onClick
+	}
+
+	bob(dt: number) {
+		if (!this.mobile) return
+
+		if (this.zDir > 0) {
+			this.z += 15 * dt
+			if (this.z - this.zAnchor > 5) this.zDir = -1
+		} else {
+			this.z -= 15 * dt
+			if (this.zAnchor - this.z > 5) this.zDir = 1
+		}
 	}
 }
 
@@ -120,13 +139,25 @@ export class Solver {
 
 		this.sprites = [
 			new Sprite(
-				500,
-				500,
-				-100,
-				100,
-				100,
+				500, 500, -100,
+				100, 100,
 				"DIRT_1A",
-				() => console.log("hey")
+				() => console.log("hey"),
+				true
+			),
+			new Sprite(
+				500, 600, 0,
+				100, 100,
+				"DIRT_1A",
+				() => console.log("hey"),
+				true
+			),
+			new Sprite(
+				550, 500, 100,
+				100, 100,
+				"DIRT_1A",
+				() => console.log("hey"),
+				true
 			)
 		]
 	}
@@ -202,17 +233,17 @@ export class Solver {
 					break
 				case "ArrowLeft":
 					this.player.movedir -= this.player.turnSpeedRad * dt
-					this.player.lookdir.x -= this.player.turnSpeedRad * dt
+					this.player.lookDir.x -= this.player.turnSpeedRad * dt
 					break
 				case "ArrowRight":
 					this.player.movedir += this.player.turnSpeedRad * dt
-					this.player.lookdir.x += this.player.turnSpeedRad * dt
+					this.player.lookDir.x += this.player.turnSpeedRad * dt
 					break
 				case "ArrowUp":
-					this.player.lookdir.y += this.player.turnSpeedRad * dt
+					this.player.lookDir.y += this.player.turnSpeedRad * dt
 					break
 				case "ArrowDown":
-					this.player.lookdir.y -= this.player.turnSpeedRad * dt
+					this.player.lookDir.y -= this.player.turnSpeedRad * dt
 					break
 				default:
 					break
@@ -221,17 +252,17 @@ export class Solver {
 
 
 		if (this.mousePos.x || this.mousePos.y) {
-			this.player.lookdir.x += this.mousePos.x * dt * 0.1
-			this.player.lookdir.y += this.mousePos.y * dt * 0.1
+			this.player.lookDir.x += this.mousePos.x * dt * 0.1
+			this.player.lookDir.y += this.mousePos.y * dt * 0.1
 
 			// clamp to [-Math.PI, Math.PI] i.e [-180, 180]
-			if (this.player.lookdir.x > Math.PI) {
-				this.player.lookdir.x = -2*Math.PI + this.player.lookdir.x
-			} else if (this.player.lookdir.x <= -1*Math.PI) {
-				this.player.lookdir.x += 2*Math.PI
+			if (this.player.lookDir.x > Math.PI) {
+				this.player.lookDir.x = -2*Math.PI + this.player.lookDir.x
+			} else if (this.player.lookDir.x <= -1*Math.PI) {
+				this.player.lookDir.x += 2*Math.PI
 			}
 
-			this.player.movedir = this.player.lookdir.x
+			this.player.movedir = this.player.lookDir.x
 
 			this.mousePos.x = 0
 			this.mousePos.y = 0
@@ -330,7 +361,7 @@ export class Solver {
 		})
 	}
 
-	castRay(origin: Vec2, dirRad: number, maxDist: number): Ray {
+	castRay(origin: Vec2, dirRad: number, maxDist: number, index: number): Ray {
 		const normd = new Vec2(
 			Math.cos(dirRad),
 			Math.sin(dirRad),
@@ -369,10 +400,12 @@ export class Solver {
 			const magy = ry.mag
 
 			if (magx > maxDist && magy > maxDist) return {
+				index,
 				pos: normd.scale(maxDist),
 				cellIdx: -1,
 				cellVal: 1,
-				distToAxis: 1
+				distToAxis: 1,
+				relMaxDist: 1
 			}
 
 			if (magx <= magy) {
@@ -386,10 +419,12 @@ export class Solver {
 					if (h < 0) distToAxis = 1 - distToAxis
 
 					return {
+						index,
 						pos: rx,
 						cellIdx: cellIdx,
 						cellVal: this.cells[cellIdx],
-						distToAxis: distToAxis
+						distToAxis: distToAxis,
+						relMaxDist: 1 - magx / this.rayDistCap
 					}
 				}
 
@@ -406,10 +441,12 @@ export class Solver {
 					if (v > 0) distToAxis = 1 - distToAxis
 
 					return {
+						index,
 						pos: ry,
 						cellIdx: cellIdx,
 						cellVal: this.cells[cellIdx],
-						distToAxis: distToAxis
+						distToAxis: distToAxis,
+						relMaxDist: 1 - magy / this.rayDistCap
 					}
 				}
 
@@ -426,10 +463,33 @@ export class Solver {
 
 		const halfFovX = this.fov.x / 2
 
+		let i = 0
 		for (let rot = -1 * halfFovX; rot <= halfFovX; rot += radIncr) {
-			rays.push(this.castRay(this.player.pos, this.player.lookdir.x + rot, this.rayDistCap))
+			rays.push(
+				this.castRay(
+					this.player.pos,
+					this.player.lookDir.x + rot,
+					this.rayDistCap,
+					i++
+				)
+			)
 		}
 
 		return rays
+	}
+
+	visibleSprites(): Array<Sprite> {
+		return this.sprites.filter((sprite) => {
+			const vsprite = sprite.pos.sub(this.player.pos)
+
+			const theta = Math.atan2(vsprite.y, vsprite.x)
+			const absd = absAngleDiff(this.player.lookDir.x, theta)
+
+			return Math.abs(absd) <= this.fov.x/2
+		})
+	}
+
+	updateSprites(dt: number) {
+		this.sprites.forEach((sprite) => sprite.bob(dt))
 	}
 }

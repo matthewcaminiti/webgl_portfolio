@@ -33,14 +33,17 @@ const main = () => {
 		solver.executeControls(dt)
 		solver.applyPlayerConstraints()
 		solver.collidePlayer()
+		solver.updateSprites(dt)
 		const rays = solver.castRays()
+		const sprites = solver.visibleSprites()
 		perfWindow.addSolverTime(performance.now() - start)
 
 		start = performance.now()
-		renderer.drawGround(solver.fov.y, solver.player.lookdir.y)
-		renderer.drawSky(solver.fov.y, solver.player.lookdir.y)
-		renderer.drawWalls(rays, solver.rayDistCap, solver.fov, solver.player.lookdir.y)
-		renderer.drawSprites(solver.fov, solver.player.pos, solver.player.lookdir, solver.sprites)
+		renderer.drawGround(solver.fov.y, solver.player.lookDir.y)
+		renderer.drawSky(solver.fov.y, solver.player.lookDir.y)
+
+		renderer.drawEntities(rays, sprites, solver.player, solver.fov)
+
 		if (controlPanel.is2dVisible) {
 			renderer.drawCells(solver.nx, solver.cellWidth, solver.cellHeight, solver.cells)
 			renderer.drawGrid(solver.nx, solver.ny, solver.cellWidth, solver.cellHeight)

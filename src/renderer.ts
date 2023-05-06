@@ -1,6 +1,6 @@
 import * as glUtil from "./glUtil"
 import {Player, Sprite} from "./solver"
-import {Vec2, degToRad, Ray, radToDeg, absAngleDiff} from "./math"
+import {Vec2, degToRad, Ray} from "./math"
 
 export class Renderer {
 	gl: WebGLRenderingContext
@@ -202,11 +202,11 @@ export class Renderer {
 
 		let dirLineIndices = [
 			player.pos.x, player.pos.y,
-			Math.cos(player.lookdir.x) * player.r + player.pos.x, Math.sin(player.lookdir.x) * player.r + player.pos.y,
+			Math.cos(player.lookDir.x) * player.r + player.pos.x, Math.sin(player.lookDir.x) * player.r + player.pos.y,
 			player.pos.x, player.pos.y,
-			Math.cos(player.lookdir.x + Math.PI/8) * player.r + player.pos.x, Math.sin(player.lookdir.x + Math.PI/8) * player.r + player.pos.y,
+			Math.cos(player.lookDir.x + Math.PI/8) * player.r + player.pos.x, Math.sin(player.lookDir.x + Math.PI/8) * player.r + player.pos.y,
 			player.pos.x, player.pos.y,
-			Math.cos(player.lookdir.x - Math.PI/8) * player.r + player.pos.x, Math.sin(player.lookdir.x - Math.PI/8) * player.r + player.pos.y,
+			Math.cos(player.lookDir.x - Math.PI/8) * player.r + player.pos.x, Math.sin(player.lookDir.x - Math.PI/8) * player.r + player.pos.y,
 		]
 
 		{
@@ -286,33 +286,33 @@ export class Renderer {
 		)
 	}
 
-	drawWalls(rays: Array<Ray>, rayDistCap: number, fov: Vec2, lookDirY: number) {
-		const cellHeight = 50
-		const verticalFovRad = Math.PI/2
-		const projectionDist = cellHeight / Math.tan(verticalFovRad/2) * 0.5
+	drawWalls(rays: Array<Ray>, fov: Vec2, lookDir: Vec2, nRays: number, offset: number) {
+		const projectionPlaneHeight = 50
+		const projectionDist = projectionPlaneHeight / Math.tan(fov.y/2) * 0.5
 
 		// incorrectly assumes rays collide at fixed distances
-		const radIncr = fov.x / rays.length
+		const radIncr = fov.x / nRays
 
-		const relative = lookDirY / fov.y * .5
+		const relative = lookDir.y / fov.y * .5
 		const relativeH = this.h * (0.5 + relative)
 
 		const indices: Array<number> = []
 		const texIndices: Array<number> = []
 		const distIndices: Array<number> = []
-		rays.forEach(({pos, cellIdx, cellVal, distToAxis}, i) => {
-			const perc = 1 - pos.mag / rayDistCap
+		let prevXPos = 0
+		rays.forEach(({pos, cellIdx, cellVal, distToAxis, relMaxDist}, i) => {
 			distIndices.push(
-				perc,
-				perc,
-				perc,
-				perc,
-				perc,
-				perc,
+				relMaxDist,
+				relMaxDist,
+				relMaxDist,
+				relMaxDist,
+				relMaxDist,
+				relMaxDist,
 			)
 
 			// angle of ray relative to center of horizontal FOV
-			const fovAdjustedAngle = fov.x/2 - i*radIncr
+			const theta = Math.atan2(pos.y, pos.x)
+			const fovAdjustedAngle = lookDir.x - theta
 
 			const rayAdjY = pos.mag * Math.cos(fovAdjustedAngle)
 			const rayAdjX = pos.mag * Math.sin(fovAdjustedAngle)
@@ -326,9 +326,9 @@ export class Renderer {
 			const relativeHalfScreenRatio = rayAdjX / fovAdjX
 			const xpos = this.w/2 - relativeHalfScreenRatio * this.w/2
 
-			let nextXpos = this.w
+			let nextXpos = xpos + xpos - prevXPos
 			if (i < rays.length - 1) {
-				const nextFovAdjustAngle = fov.x/2 - (i+1)*radIncr
+				const nextFovAdjustAngle = fov.x/2 - (i+offset+1)*radIncr
 				const nextRayAdjX = rays[i+1].pos.mag * Math.sin(nextFovAdjustAngle)
 				const nextRayAdjY = rays[i+1].pos.mag * Math.cos(nextFovAdjustAngle)
 
@@ -355,6 +355,7 @@ export class Renderer {
 				topleft.x, botRight.y,
 				botRight.x, botRight.y,
 			)
+			prevXPos = xpos
 
 			let nextDistToNextAxis = 1
 			// look forward, if cell is same and reldist is greater than current, draw to it
@@ -364,7 +365,7 @@ export class Renderer {
 				rays[i+1].distToAxis > distToAxis
 			) {
 				nextDistToNextAxis = rays[i+1].distToAxis
-			} else if (i === rays.length - 1) {
+			} else if (i === rays.length - 1 && i > 0) {
 				// if last ray, fudge it
 				nextDistToNextAxis = 2*distToAxis - rays[i-1].distToAxis
 			}
@@ -494,26 +495,86 @@ export class Renderer {
 		)
 	}
 
-	drawSprites(fov: Vec2, playerPos: Vec2, lookdir: Vec2, sprites: Array<Sprite>) {
+	drawSprite(sprite: Sprite, fov: Vec2, playerPos: Vec2, lookDir: Vec2) {
 		const projectionPlaneHeight = 100
 		const projectionDist = projectionPlaneHeight / Math.tan(fov.y/2) * 0.5
 
-		const relative = lookdir.y / fov.y * .5
+		const relative = lookDir.y / fov.y * .5
+		const relativeH = this.h * (0.5 + relative)
+
+		const vsprite = sprite.pos.sub(playerPos)
+		const theta = Math.atan2(vsprite.y, vsprite.x)
+
+		const spriteDist = vsprite.mag
+
+		const d = lookDir.x - theta
+		const adjX = spriteDist * Math.sin(d)
+		const adjY = spriteDist * Math.cos(Math.abs(d))
+
+		const relativeY = adjY !== 0 ? projectionDist / adjY : 0
+
+		// width of half of FOV, adjY far away
+		const fovAdjX = adjY * Math.tan(fov.x/2)
+
+		const relativeHalfScreenRatio = adjX / fovAdjX
+		const xpos = this.w/2 - relativeHalfScreenRatio * this.w/2
+
+		const topLeft = {
+			x: xpos - sprite.w * relativeY * .5,
+			y: relativeH - sprite.z * relativeY - sprite.h * relativeY * .5
+		}
+
+		const botRight = {
+			x: topLeft.x + sprite.w * relativeY,
+			y: topLeft.y + sprite.h * relativeY
+		}
+
+		const indices: Array<number> = [
+			topLeft.x, topLeft.y,
+			topLeft.x, botRight.y,
+			botRight.x, botRight.y,
+			topLeft.x, topLeft.y,
+			botRight.x, topLeft.y,
+			botRight.x, botRight.y,
+		]
+
+		this.gl.useProgram(this.programs.plainColor.program)
+
+		const attribs: Record<string, glUtil.AttribArray> = {
+			a_position: {numComponents: 2, data: new Float32Array(indices)}
+		}
+
+		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribs)
+
+		glUtil.setBuffersAndAttributes(this.programs.plainColor.attributeSetters, bufferInfo)
+
+		const uniforms = {
+			u_color: [0, 1, 0, 1]
+		}
+
+		glUtil.setUniforms(this.programs.plainColor.uniformSetters, uniforms)
+
+		this.gl.drawArrays(
+			this.gl.TRIANGLES,
+			0,
+			indices.length/2
+		)
+	}
+
+	drawSprites(sprites: Array<Sprite>, fov: Vec2, playerPos: Vec2, lookDir: Vec2) {
+		const projectionPlaneHeight = 100
+		const projectionDist = projectionPlaneHeight / Math.tan(fov.y/2) * 0.5
+
+		const relative = lookDir.y / fov.y * .5
 		const relativeH = this.h * (0.5 + relative)
 
 		sprites.forEach((sprite) => {
 			const vsprite = sprite.pos.sub(playerPos)
-
 			const theta = Math.atan2(vsprite.y, vsprite.x)
-			const absd = absAngleDiff(lookdir.x, theta)
-
-			if (Math.abs(absd) > fov.x/2) {
-				return
-			}
 
 			const spriteDist = vsprite.mag
 
-			const d = lookdir.x - theta
+			const d = lookDir.x - theta
 			const adjX = spriteDist * Math.sin(d)
 			const adjY = spriteDist * Math.cos(Math.abs(d))
 
@@ -566,5 +627,85 @@ export class Renderer {
 				indices.length/2
 			)
 		})
+	}
+
+	drawEntities(
+		rays: Array<Ray>,
+		sprites: Array<Sprite>,
+		player: Player,
+		fov: Vec2
+	) {
+		const nRays = rays.length
+		sprites.sort((a, b) => a.pos.sub(player.pos).mag - b.pos.sub(player.pos).mag)
+
+		let unrenderedSprites = sprites
+		let unrenderedRays = rays
+
+		const groupRays = (_rays: Array<Ray>): Array<Array<Ray>> => {
+			return _rays.reduce((acc, curr) => {
+				if (!acc.length) {
+					acc = [[curr]]
+					return acc
+				}
+
+				const lastGroup = acc[acc.length - 1]
+				if (lastGroup[lastGroup.length - 1].index === curr.index - 1) {
+					acc[acc.length - 1].push(curr)
+				} else {
+					acc.push([curr])
+				}
+
+				return acc
+			}, [] as Array<Array<Ray>>)
+		}
+
+		while (unrenderedSprites.length) {
+			const furthestUnrenderedSprite = unrenderedSprites.pop()
+			if (!furthestUnrenderedSprite) break
+
+			const spriteDist = furthestUnrenderedSprite.pos.sub(player.pos).mag
+
+			const {furtherRays, closerRays} = unrenderedRays.reduce((acc, curr) => {
+				if (curr.pos.mag > spriteDist) {
+					acc.furtherRays.push(curr)
+				} else {
+					acc.closerRays.push(curr)
+				}
+
+				return acc
+			}, {furtherRays: [] as Array<Ray>, closerRays: [] as Array<Ray>})
+
+			unrenderedRays = closerRays
+
+			if (furtherRays.length) {
+				const rayGroups = groupRays(furtherRays)
+
+				rayGroups.forEach((_rays) => {
+					this.drawWalls(
+						_rays,
+						fov,
+						player.lookDir,
+						nRays,
+						_rays[0].index
+					)
+				})
+			}
+
+			this.drawSprite(furthestUnrenderedSprite, fov, player.pos, player.lookDir)
+		}
+
+		if (unrenderedRays.length) {
+			const rayGroups = groupRays(unrenderedRays)
+
+			rayGroups.forEach((_rays) => {
+				this.drawWalls(
+					_rays,
+					fov,
+					player.lookDir,
+					nRays,
+					_rays[0].index
+				)
+			})
+		}
 	}
 }
