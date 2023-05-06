@@ -311,8 +311,7 @@ export class Renderer {
 			)
 
 			// angle of ray relative to center of horizontal FOV
-			const theta = Math.atan2(pos.y, pos.x)
-			const fovAdjustedAngle = lookDir.x - theta
+			const fovAdjustedAngle = fov.x/2 - (i+offset)*radIncr
 
 			const rayAdjY = pos.mag * Math.cos(fovAdjustedAngle)
 			const rayAdjX = pos.mag * Math.sin(fovAdjustedAngle)
