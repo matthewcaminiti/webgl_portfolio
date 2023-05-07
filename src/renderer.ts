@@ -1,5 +1,6 @@
 import * as glUtil from "./glUtil"
-import {Player, Sprite} from "./solver"
+import {Player} from "./solver"
+import {Sprite, makeTextCanvas, assetType} from "./sprites"
 import {Vec2, degToRad, Ray} from "./math"
 
 export class Renderer {
@@ -67,6 +68,23 @@ export class Renderer {
 
 		const spriteAssets = ['DIRT_1A.png']
 		spriteAssets.forEach((filename) => loadAsset(`assets/sprites/${filename}`))
+
+		const textAssets = [
+			{key: "greetings", text: "Greetings", w: 1000, h: 180},
+			{key: "welcome", text: "Welcome to my developer portfolio!", w: 1800, h: 80},
+			{key: "look", text: "Have a look around!", w: 1800, h: 80},
+		]
+		textAssets.forEach(({key, text, w, h}) => {
+			const textCanvas = makeTextCanvas(text, w, h) as HTMLCanvasElement
+
+			this.textures[key] = this.gl.createTexture() as WebGLTexture
+			this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[key])
+
+			this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, textCanvas)
+			this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR)
+			this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE)
+			this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE)
+		})
 	}
 
 	refreshCanvas() {
@@ -418,7 +436,6 @@ export class Renderer {
 		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
 		const uniforms = {
 			u_resolution: [this.w, this.h],
-			u_color: [0, 0, 0, 1],
 			u_texture: this.textures['atlas'],
 		}
 		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
@@ -504,7 +521,7 @@ export class Renderer {
 		)
 	}
 
-	drawSprite(sprite: Sprite, fov: Vec2, playerPos: Vec2, lookDir: Vec2) {
+	drawSprite(sprite: Sprite, fov: Vec2, playerPos: Vec2, lookDir: Vec2, renderDistance: number) {
 		const projectionPlaneHeight = 100
 		const projectionDist = projectionPlaneHeight / Math.tan(fov.y/2) * 0.5
 
@@ -546,35 +563,65 @@ export class Renderer {
 			botRight.x, topLeft.y,
 			botRight.x, botRight.y,
 		]
+		const texIndices = [
+			0, 0,
+			0, 1,
+			1, 1,
+			0, 0,
+			1, 0,
+			1, 1,
+		]
 
-		this.gl.useProgram(this.programs.plainColor.program)
+		const relDist = 1 - spriteDist/renderDistance
+		const distIndices = [
+			relDist,
+			relDist,
+			relDist,
+			relDist,
+			relDist,
+			relDist,
+		]
+
+		this.gl.useProgram(this.programs.walls.program)
 
 		const attribs: Record<string, glUtil.AttribArray> = {
-			a_position: {numComponents: 2, data: new Float32Array(indices)}
+			a_position: {numComponents: 2, data: new Float32Array(indices)},
+			a_texcoord: {numComponents: 2, data: new Float32Array(texIndices)},
+			a_dist: {numComponents: 1, data: new Float32Array(distIndices)}
 		}
 
 		const bufferInfo = glUtil.createBufferInfoFromArrays(this.gl, attribs)
 
-		glUtil.setBuffersAndAttributes(this.programs.plainColor.attributeSetters, bufferInfo)
+		glUtil.setBuffersAndAttributes(this.programs.walls.attributeSetters, bufferInfo)
 
 		const uniforms = {
-			u_color: [0, 1, 0, 1]
+			u_resolution: [this.w, this.h],
+			u_texture: this.textures[sprite.asset],
 		}
+		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
 
-		glUtil.setUniforms(this.programs.plainColor.uniformSetters, uniforms)
+		if (sprite.type === assetType.TEXT) {
+			this.gl.enable(this.gl.BLEND)
+			this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA)
+			this.gl.depthMask(false)
+		}
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
 			0,
 			indices.length/2
 		)
+
+		if (sprite.type === assetType.TEXT)
+			this.gl.disable(this.gl.BLEND)
 	}
 
 	drawEntities(
 		rays: Array<Ray>,
 		sprites: Array<Sprite>,
 		player: Player,
-		fov: Vec2
+		fov: Vec2,
+		renderDistance: number
 	) {
 		const nRays = rays.length
 		sprites.sort((a, b) => a.pos.sub(player.pos).mag - b.pos.sub(player.pos).mag)
@@ -632,7 +679,7 @@ export class Renderer {
 				})
 			}
 
-			this.drawSprite(furthestUnrenderedSprite, fov, player.pos, player.lookDir)
+			this.drawSprite(furthestUnrenderedSprite, fov, player.pos, player.lookDir, renderDistance)
 		}
 
 		if (unrenderedRays.length) {

@@ -1,4 +1,5 @@
 import {Vec2, Ray, absAngleDiff} from "./math"
+import {Sprite, assetType} from "./sprites"
 
 export class Player {
 	pos: Vec2
@@ -18,51 +19,6 @@ export class Player {
 	}
 }
 
-export class Sprite {
-	pos: Vec2
-	z: number
-	zAnchor: number
-	zDir: number
-	mobile: boolean
-	w: number
-	h: number
-	asset: string
-	onClick: () => void
-
-	constructor(
-		x: number,
-		y: number,
-		z: number,
-		w: number,
-		h: number,
-		asset: string,
-		onClick: () => void,
-		mobile: boolean
-	) {
-		this.pos = new Vec2(x, y)
-		this.z = z
-		this.zAnchor = z
-		this.zDir = 1
-		this.mobile = mobile
-		this.w = w
-		this.h = h
-		this.asset = asset
-		this.onClick = onClick
-	}
-
-	bob(dt: number) {
-		if (!this.mobile) return
-
-		if (this.zDir > 0) {
-			this.z += 15 * dt
-			if (this.z - this.zAnchor > 5) this.zDir = -1
-		} else {
-			this.z -= 15 * dt
-			if (this.zAnchor - this.z > 5) this.zDir = 1
-		}
-	}
-}
-
 export class Solver {
 	w: number
 	h: number
@@ -74,7 +30,7 @@ export class Solver {
 	player: Player
 	keys: Record<string, boolean>
 	nRays: number
-	rayDistCap: number
+	renderDistance: number
 	fov: Vec2
 	mousePos: Vec2
 	sprites: Array<Sprite>
@@ -139,22 +95,40 @@ export class Solver {
 		}
 
 		this.nRays = 1000
-		this.rayDistCap = 1000
+		this.renderDistance = 1000
 		this.fov = new Vec2(Math.PI/2, Math.PI/2)
 		this.mousePos = new Vec2(0, 0)
 
 		this.sprites = [
 			new Sprite(
-				555, 470, -100,
-				150, 150,
-				"DIRT_1A",
+				555, 470, 100,
+				500, 90,
+				"greetings",
+				assetType.TEXT,
 				() => console.log("hey"),
 				true
 			),
 			new Sprite(
-				555, 470, 100,
-				400, 100,
+				555, 470, 0,
+				900, 40,
+				"welcome",
+				assetType.TEXT,
+				() => console.log("hey"),
+				true
+			),
+			new Sprite(
+				555, 470, -100,
+				900, 40,
+				"look",
+				assetType.TEXT,
+				() => console.log("hey"),
+				true
+			),
+			new Sprite(
+				555, 470, -400,
+				150, 150,
 				"DIRT_1A",
+				assetType.IMAGE,
 				() => console.log("hey"),
 				true
 			),
@@ -423,7 +397,7 @@ export class Solver {
 						cellIdx: cellIdx,
 						cellVal: this.cells[cellIdx],
 						distToAxis: distToAxis,
-						relMaxDist: 1 - magx / this.rayDistCap
+						relMaxDist: 1 - magx / this.renderDistance
 					}
 				}
 
@@ -445,7 +419,7 @@ export class Solver {
 						cellIdx: cellIdx,
 						cellVal: this.cells[cellIdx],
 						distToAxis: distToAxis,
-						relMaxDist: 1 - magy / this.rayDistCap
+						relMaxDist: 1 - magy / this.renderDistance
 					}
 				}
 
@@ -468,7 +442,7 @@ export class Solver {
 				this.castRay(
 					this.player.pos,
 					this.player.lookDir.x + rot,
-					this.rayDistCap,
+					this.renderDistance,
 					i++
 				)
 			)

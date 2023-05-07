@@ -42,7 +42,7 @@ const main = () => {
 		renderer.drawGround(solver.fov.y, solver.player.lookDir.y)
 		renderer.drawSky(solver.fov.y, solver.player.lookDir.y)
 
-		renderer.drawEntities(rays, sprites, solver.player, solver.fov)
+		renderer.drawEntities(rays, sprites, solver.player, solver.fov, solver.renderDistance)
 
 		if (controlPanel.is2dVisible) {
 			renderer.drawCells(solver.nx, solver.cellWidth, solver.cellHeight, solver.cells)
