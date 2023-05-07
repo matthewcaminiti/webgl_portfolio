@@ -75,6 +75,10 @@ export const defaultSprites = [
 	new Sprite(555, 470, 100, 500, 90, "greetings", assetType.TEXT, () => {}, true),
 	new Sprite(555, 470, 0, 900, 40, "welcome", assetType.TEXT, () => {}, true),
 	new Sprite(555, 470, -100, 900, 40, "look", assetType.TEXT, () => {}, true),
+	new Sprite(515, 530, 120, 900, 40, "this", assetType.TEXT, () => {}, true),
+	new Sprite(530, 530, 0, 150, 150, "ts_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(520, 530, 0, 150, 150, "nginx_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(504, 530, 0, 350, 150, "webgl_icon", assetType.IMAGE, () => {}, true),
 	// spenny
 	new Sprite(725, 469, 100, 500, 90, "spenny_title", assetType.TEXT, () => {}, true),
 	new Sprite(881, 405, 0, 150, 150, "react_icon", assetType.IMAGE, () => {}, true),

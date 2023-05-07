@@ -102,6 +102,7 @@ export class Renderer {
 			{key: "welcome", text: "Welcome to my developer portfolio!", w: 1800, h: 80},
 			{key: "look", text: "Have a look around!", w: 1800, h: 80},
 			{key: "wip", text: "WIP", w: 1400, h: 180},
+			{key: "this", text: "this.tech (you're standing in it)", w: 1800, h: 80},
 			// spenny
 			{key: "spenny_title", text: "spenny", w: 1000, h: 180},
 			// staiir
