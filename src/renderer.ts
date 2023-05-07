@@ -21,6 +21,8 @@ export class Renderer {
 			walls: glUtil.createProgramInfo(this.gl, "v-walls", "f-walls")
 		}
 
+		console.log(`Resolution: (${this.w} x ${this.h})`)
+
 		this.textures = {}
 
 		this.loadAssets()

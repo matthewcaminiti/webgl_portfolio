@@ -99,7 +99,7 @@ export class Solver {
 		this.fov = new Vec2(Math.PI/2, Math.PI/2)
 		this.mousePos = new Vec2(0, 0)
 
-		this.sprites = defaultSprites
+		this.sprites = defaultSprites(this.h)
 	}
 
 	bindControls(canvas: HTMLCanvasElement) {

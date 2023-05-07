@@ -67,7 +67,8 @@ export const makeTextCanvas = (text: string, w: number, h: number) => {
 	return textCtx.canvas
 }
 
-export const defaultSprites = [
+export const defaultSprites = (h: number) => {
+	return [
 	new Sprite(555, 470, 100, 500, 90, "greetings", assetType.TEXT, () => {}, true),
 	new Sprite(555, 470, 0, 900, 40, "welcome", assetType.TEXT, () => {}, true),
 	new Sprite(555, 470, -100, 900, 40, "look", assetType.TEXT, () => {}, true),
@@ -81,5 +82,10 @@ export const defaultSprites = [
 	new Sprite(278, 725, 100, 700, 90, "teetris_title", assetType.TEXT, () => {}, true),
 	new Sprite(468, 215, 100, 700, 90, "noti_title", assetType.TEXT, () => {}, true),
 	new Sprite(278, 215, 100, 700, 90, "truthjournal_title", assetType.TEXT, () => {}, true),
-]
+	].map((s) => {
+		s.pos.x = (s.pos.x/949)*h
+		s.pos.y = (s.pos.y/949)*h
+		return s
+	})
+}
 
