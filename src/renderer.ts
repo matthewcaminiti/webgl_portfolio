@@ -79,7 +79,6 @@ export class Renderer {
 		textureAssets.forEach((filename) => loadAsset(`assets/textures/${filename}`))
 
 		const spriteAssets = [
-			'DIRT_1A.png',
 			'react_icon.png',
 			'nginx_icon.png',
 			'expressjs_icon.png',
