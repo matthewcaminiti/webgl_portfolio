@@ -67,3 +67,19 @@ export const makeTextCanvas = (text: string, w: number, h: number) => {
 	return textCtx.canvas
 }
 
+export const defaultSprites = [
+	new Sprite(555, 470, 100, 500, 90, "greetings", assetType.TEXT, () => {}, true),
+	new Sprite(555, 470, 0, 900, 40, "welcome", assetType.TEXT, () => {}, true),
+	new Sprite(555, 470, -100, 900, 40, "look", assetType.TEXT, () => {}, true),
+	/* new Sprite(555, 470, -400, 150, 150, "DIRT_1A", assetType.IMAGE, () => {}, true), */
+	new Sprite(725, 469, 100, 500, 90, "spenny_title", assetType.TEXT, () => {}, true),
+	new Sprite(725, 664, 100, 500, 90, "voichess_title", assetType.TEXT, () => {}, true),
+	new Sprite(725, 278, 100, 500, 90, "staiir_title", assetType.TEXT, () => {}, true),
+	new Sprite(663, 215, 100, 700, 90, "particlelife_title", assetType.TEXT, () => {}, true),
+	new Sprite(663, 725, 100, 500, 90, "helcim_title", assetType.TEXT, () => {}, true),
+	new Sprite(468, 725, 100, 700, 90, "gosocket_title", assetType.TEXT, () => {}, true),
+	new Sprite(278, 725, 100, 700, 90, "teetris_title", assetType.TEXT, () => {}, true),
+	new Sprite(468, 215, 100, 700, 90, "noti_title", assetType.TEXT, () => {}, true),
+	new Sprite(278, 215, 100, 700, 90, "truthjournal_title", assetType.TEXT, () => {}, true),
+]
+

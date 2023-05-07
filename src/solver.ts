@@ -1,5 +1,5 @@
 import {Vec2, Ray, absAngleDiff} from "./math"
-import {Sprite, assetType} from "./sprites"
+import {Sprite, defaultSprites} from "./sprites"
 
 export class Player {
 	pos: Vec2
@@ -99,40 +99,7 @@ export class Solver {
 		this.fov = new Vec2(Math.PI/2, Math.PI/2)
 		this.mousePos = new Vec2(0, 0)
 
-		this.sprites = [
-			new Sprite(
-				555, 470, 100,
-				500, 90,
-				"greetings",
-				assetType.TEXT,
-				() => console.log("hey"),
-				true
-			),
-			new Sprite(
-				555, 470, 0,
-				900, 40,
-				"welcome",
-				assetType.TEXT,
-				() => console.log("hey"),
-				true
-			),
-			new Sprite(
-				555, 470, -100,
-				900, 40,
-				"look",
-				assetType.TEXT,
-				() => console.log("hey"),
-				true
-			),
-			new Sprite(
-				555, 470, -400,
-				150, 150,
-				"DIRT_1A",
-				assetType.IMAGE,
-				() => console.log("hey"),
-				true
-			),
-		]
+		this.sprites = defaultSprites
 	}
 
 	bindControls(canvas: HTMLCanvasElement) {
@@ -175,12 +142,14 @@ export class Solver {
 		})
 
 		canvas.addEventListener("keydown", (e) => {
+			if (e.code === "Space") console.log(this.player.pos)
 			this.keys[e.code] = true
 		})
 
 		canvas.addEventListener("keyup", (e) => {
 			this.keys[e.code] = false
 		})
+
 	}
 
 	executeControls(dt: number) {

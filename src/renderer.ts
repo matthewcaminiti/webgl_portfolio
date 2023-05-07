@@ -73,6 +73,15 @@ export class Renderer {
 			{key: "greetings", text: "Greetings", w: 1000, h: 180},
 			{key: "welcome", text: "Welcome to my developer portfolio!", w: 1800, h: 80},
 			{key: "look", text: "Have a look around!", w: 1800, h: 80},
+			{key: "spenny_title", text: "spenny", w: 1000, h: 180},
+			{key: "voichess_title", text: "Voichess", w: 1000, h: 180},
+			{key: "staiir_title", text: "staiir", w: 1000, h: 180},
+			{key: "particlelife_title", text: "particlelife", w: 1400, h: 180},
+			{key: "helcim_title", text: "Helcim", w: 1000, h: 180},
+			{key: "gosocket_title", text: "gosocket", w: 1400, h: 180},
+			{key: "teetris_title", text: "teetris", w: 1400, h: 180},
+			{key: "noti_title", text: "noti", w: 1400, h: 180},
+			{key: "truthjournal_title", text: "TruthJournal", w: 1400, h: 180},
 		]
 		textAssets.forEach(({key, text, w, h}) => {
 			const textCanvas = makeTextCanvas(text, w, h) as HTMLCanvasElement
