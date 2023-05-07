@@ -40,6 +40,86 @@
 		text-decoration: none;
 	}
 
+	.links {
+		height: 100%;
+		width: 0;
+		position: fixed;
+		z-index: 1;
+		top: 0;
+		left: 0;
+		background-color: rgba(0, 0, 0, 0.5);
+		overflow-x: hidden;
+		padding-top: 5rem;
+		transition: 0.5s;
+	}
+
+	.links a {
+		padding: 8px 8px 8px 32px;
+		text-decoration: none;
+		font-size: 14px;
+		color: #818181;
+		display: block;
+		transition: 0.3;
+	}
+
+	.links a:hover {
+		color: #f1f1f1;
+	}
+
+	.links .closebtn {
+		position: absolute;
+		top: 0;
+		right: 25px;
+		font-size: 36px;
+		margin-left: 50px;
+	}
+
+	.accordion {
+		background-color: #eee;
+		color: #444;
+		cursor: pointer;
+		padding: 18px;
+		width: 100%;
+		text-align: left;
+		border: none;
+		outline: none;
+		transition: 0.4;
+	}
+
+	.active, .accordion:hover {
+		background-color: #ccc;
+	}
+
+	.panel {
+		padding: 0 1px;
+		background-color: white;
+		display: none;
+		overflow: hidden;
+	}
+
+	.open-links-btn {
+		position: fixed;
+		top: 0;
+		left: 0;
+		padding-top: 12px;
+		padding-left: 12px;
+		font-size: 25px;
+		user-select: none;
+		cursor: pointer;
+	}
+
+	#focus-warning {
+		position:absolute;
+		width: 100%;
+		top: 50%;
+		text-align: center;
+		color: white;
+		padding: 2rem 0;
+		font-size: 25px;
+		user-select: none;
+		background-color: rgba(0, 0, 0, 0.8);
+	}
+
 	</style>
 </head>
 <body style="background-color:black;">
@@ -64,7 +144,48 @@
 		</div>
 	</div>
 
-	<div style="position: absolute; bottom: 0rem; right: 1rem; width: 15rem; color: white; background-color: rgba(0, 0, 0, 0.8); font-weight: bold; display: flex; flex-direction: column;">
+	<div class="open-links-btn" onclick="openLinks()">
+		<img src="assets/web/link.png" height="25"/>
+	</div>
+
+	<div id="links" class="links">
+		<a href="javascript:void(0)" class="closebtn" onclick="closeLinks()">&times;</a>
+		<button class="accordion">this</button>
+		<div class="panel">
+			<a href="https://github.com/matthewcaminiti/webgl_portfolio" target="_blank">github</a>
+		</div>
+
+		<button class="accordion">spenny</button>
+		<div class="panel">
+			<a href="https://apps.apple.com/ca/app/spenny/id1599181818" target="_blank">app store</a>
+			<a href="#">github (msg me for access)</a>
+		</div>
+
+		<button class="accordion">staiir</button>
+		<div class="panel">
+			<a href="https://apps.apple.com/my/app/staiir/id6443690853" target="_blank">app store</a>
+			<a href="#">github (msg me for access)</a>
+		</div>
+
+		<button class="accordion">voichess</button>
+		<div class="panel">
+			<a href="https://voichess.titolounge.dev/" target="_blank">website</a>
+			<a href="#">github (msg me for access)</a>
+		</div>
+
+		<button class="accordion">particlelife</button>
+		<div class="panel">
+			<a href="https://particlelife.titolounge.dev/" target="_blank">website</a>
+			<a href="https://github.com/matthewcaminiti/particle_life" target="_blank">github</a>
+		</div>
+
+		<button class="accordion">teetris</button>
+		<div class="panel">
+			<a href="#">github (msg me for access)</a>
+		</div>
+	</div>
+
+	<div style="position: absolute; bottom: 0rem; right: 1rem; width: 15rem; color: white; background-color: rgba(0, 0, 0, 0.8); font-weight: bold; display: flex; flex-direction: column; z-index: 1000;">
 		<div style="display: flex; flex-direction: column">
 			Render distance
 			<div style="display: flex; flex-direction: row; align-items: center; justify-content: space-evenly; width: 100%;">
@@ -86,7 +207,7 @@
 		</div>
 	</div>
 
-	<div id="focus-warning" style="position:absolute; width: 100%; top: 50%; text-align: center; color: white; background-color: rgba(0, 0, 0, 0.8);">
+	<div id="focus-warning">
 		Click to focus
 	</div>
 
@@ -95,7 +216,7 @@
 			- Movement: WASD
 		</div>
 		<div>
-			- Move mouse to look around
+			- Move mouse to look around, or
 		</div>
 		<div>
 			- Arrow keys to look around
@@ -168,6 +289,27 @@ varying float v_dist;
 
 void main() {
 	gl_FragColor = texture2D(u_texture, v_texcoord) * v_dist;
+}
+</script>
+<script>
+const openLinks = () => {
+	document.getElementById("links").style.width = "250px"
+}
+
+const closeLinks = () => {
+	document.getElementById("links").style.width = "0"
+}
+
+const accordions = document.getElementsByClassName("accordion")
+
+console.log("num accordions: ", accordions.length)
+for (let i = 0; i < accordions.length; i++) {
+	accordions[i].addEventListener("click", () => {
+		accordions[i].classList.toggle("active")
+
+		const panel = accordions[i].nextElementSibling
+		panel.style.display = panel.style.display === "block" ? "none" : "block"
+	})
 }
 </script>
 <body>
