@@ -79,6 +79,7 @@ export const defaultSprites = [
 	new Sprite(530, 530, 0, 150, 150, "ts_icon", assetType.IMAGE, () => {}, true),
 	new Sprite(520, 530, 0, 150, 150, "nginx_icon", assetType.IMAGE, () => {}, true),
 	new Sprite(504, 530, 0, 350, 150, "webgl_icon", assetType.IMAGE, () => {}, true),
+
 	// spenny
 	new Sprite(725, 469, 100, 500, 90, "spenny_title", assetType.TEXT, () => {}, true),
 	new Sprite(881, 405, 0, 150, 150, "react_icon", assetType.IMAGE, () => {}, true),
@@ -90,6 +91,7 @@ export const defaultSprites = [
 	new Sprite(881, 460, 0, 300, 550, "spenny_input", assetType.IMAGE, () => {}, false),
 	new Sprite(881, 480, 0, 300, 550, "spenny_graph", assetType.IMAGE, () => {}, false),
 	new Sprite(881, 500, 0, 300, 550, "spenny_profile", assetType.IMAGE, () => {}, false),
+
 	// staiir
 	new Sprite(725, 278, 100, 500, 90, "staiir_title", assetType.TEXT, () => {}, true),
 	new Sprite(881, 210, 0, 150, 150, "react_icon", assetType.IMAGE, () => {}, true),
@@ -99,11 +101,14 @@ export const defaultSprites = [
 	new Sprite(881, 274, 0, 300, 500, "staiir_customize", assetType.IMAGE, () => {}, false),
 	new Sprite(881, 294, 0, 300, 500, "staiir_repertoire", assetType.IMAGE, () => {}, false),
 	new Sprite(881, 314, 0, 300, 500, "staiir_workout", assetType.IMAGE, () => {}, false),
+
 	// particlelife
 	new Sprite(663, 215, 100, 700, 90, "particlelife_title", assetType.TEXT, () => {}, true),
 	new Sprite(600, 54, 0, 150, 150, "ts_icon", assetType.IMAGE, () => {}, true),
 	new Sprite(610, 54, 0, 150, 150, "nginx_icon", assetType.IMAGE, () => {}, true),
 	new Sprite(628, 54, 0, 350, 150, "webgl_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(685, 54, 0, 700, 400, "particlelife_0", assetType.IMAGE, () => {}, false),
+
 	// voichess
 	new Sprite(725, 664, 100, 500, 90, "voichess_title", assetType.TEXT, () => {}, true),
 	new Sprite(881, 600, 0, 150, 150, "react_icon", assetType.IMAGE, () => {}, true),
@@ -111,8 +116,12 @@ export const defaultSprites = [
 	new Sprite(881, 620, 0, 150, 150, "expressjs_icon", assetType.IMAGE, () => {}, true),
 	new Sprite(881, 630, 0, 150, 150, "nodejs_icon", assetType.IMAGE, () => {}, true),
 	new Sprite(881, 640, 0, 150, 150, "socketio_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(881, 674, 0, 400, 400, "voichess_home", assetType.IMAGE, () => {}, false),
+	new Sprite(881, 704, 0, 500, 400, "voichess_play", assetType.IMAGE, () => {}, false),
+
 	// helcim
 	new Sprite(663, 725, 100, 500, 90, "helcim_title", assetType.TEXT, () => {}, true),
+	new Sprite(663, 725, 0, 350, 45, "wip", assetType.TEXT, () => {}, true),
 	new Sprite(725, 881, 150, 150, 150, "vue_icon", assetType.IMAGE, () => {}, true),
 	new Sprite(715, 881, 150, 150, 150, "go_icon", assetType.IMAGE, () => {}, true),
 	new Sprite(705, 881, 150, 150, 150, "ts_icon", assetType.IMAGE, () => {}, true),
@@ -121,17 +130,20 @@ export const defaultSprites = [
 	new Sprite(705, 881, 0, 150, 150, "nginx_icon", assetType.IMAGE, () => {}, true),
 	new Sprite(725, 881, -150, 150, 150, "mysql_icon", assetType.IMAGE, () => {}, true),
 	new Sprite(715, 881, -150, 150, 150, "docker_icon", assetType.IMAGE, () => {}, true),
-	// gosocket
-	new Sprite(468, 725, 100, 700, 90, "gosocket_title", assetType.TEXT, () => {}, true),
+
+	// teetris
+	new Sprite(468, 725, 100, 700, 90, "teetris_title", assetType.TEXT, () => {}, true),
+	new Sprite(468, 725, 0, 350, 45, "wip", assetType.TEXT, () => {}, true),
 	new Sprite(530, 881, 0, 150, 150, "go_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(520, 881, 0, 150, 150, "react_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(471, 881, 0, 650, 500, "teetris_websocket", assetType.IMAGE, () => {}, false),
+
 	// noti
 	new Sprite(468, 215, 100, 700, 90, "noti_title", assetType.TEXT, () => {}, true),
 	new Sprite(468, 215, 0, 350, 45, "wip", assetType.TEXT, () => {}, true),
+
 	// truthjournal
 	new Sprite(278, 215, 100, 700, 90, "truthjournal_title", assetType.TEXT, () => {}, true),
 	new Sprite(278, 215, 0, 350, 45, "wip", assetType.TEXT, () => {}, true),
-	// teetris
-	new Sprite(278, 725, 100, 700, 90, "teetris_title", assetType.TEXT, () => {}, true),
-	new Sprite(278, 725, 0, 350, 45, "wip", assetType.TEXT, () => {}, true),
 ]
 

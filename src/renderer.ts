@@ -102,6 +102,10 @@ export class Renderer {
 			'spenny_input.jpg',
 			'spenny_graph.jpg',
 			'spenny_profile.jpg',
+			'voichess_home.png',
+			'voichess_play.png',
+			'particlelife_0.png',
+			'teetris_websocket.png',
 		]
 		spriteAssets.forEach((filename) => loadAsset(`assets/sprites/${filename}`))
 
@@ -121,14 +125,12 @@ export class Renderer {
 			{key: "voichess_title", text: "Voichess", w: 1000, h: 180},
 			// helcim
 			{key: "helcim_title", text: "Helcim", w: 1000, h: 180},
-			// gosocket
-			{key: "gosocket_title", text: "gosocket", w: 1400, h: 180},
+			// teetris
+			{key: "teetris_title", text: "teetris", w: 1400, h: 180},
 			// noti
 			{key: "noti_title", text: "noti", w: 1400, h: 180},
 			// truthjournal
 			{key: "truthjournal_title", text: "TruthJournal", w: 1400, h: 180},
-			// teetris
-			{key: "teetris_title", text: "teetris", w: 1400, h: 180},
 		]
 		textAssets.forEach(({key, text, w, h}) => {
 			const textCanvas = makeTextCanvas(text, w, h) as HTMLCanvasElement
