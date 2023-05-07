@@ -44,7 +44,11 @@ export class Sprite {
 		if (!this.mobile) return
 
 		this.z += 15 * dt * this.zDir
-		this.zDir *= Math.abs(this.z - this.zAnchor) > 5 ? -1 : 1
+		if (this.zDir > 0 && this.z - this.zAnchor > 5) {
+			this.zDir = -1
+		} else if (this.zDir < 0 && this.zAnchor - this.z > 5) {
+			this.zDir = 1
+		}
 	}
 }
 
@@ -67,25 +71,54 @@ export const makeTextCanvas = (text: string, w: number, h: number) => {
 	return textCtx.canvas
 }
 
-export const defaultSprites = (h: number) => {
-	return [
+export const defaultSprites = [
 	new Sprite(555, 470, 100, 500, 90, "greetings", assetType.TEXT, () => {}, true),
 	new Sprite(555, 470, 0, 900, 40, "welcome", assetType.TEXT, () => {}, true),
 	new Sprite(555, 470, -100, 900, 40, "look", assetType.TEXT, () => {}, true),
-	/* new Sprite(555, 470, -400, 150, 150, "DIRT_1A", assetType.IMAGE, () => {}, true), */
+	// spenny
 	new Sprite(725, 469, 100, 500, 90, "spenny_title", assetType.TEXT, () => {}, true),
-	new Sprite(725, 664, 100, 500, 90, "voichess_title", assetType.TEXT, () => {}, true),
+	new Sprite(881, 405, 0, 150, 150, "react_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(881, 415, 0, 150, 150, "nginx_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(881, 425, 0, 150, 150, "expressjs_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(881, 435, 0, 150, 150, "nodejs_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(881, 445, 0, 150, 150, "mongodb_icon", assetType.IMAGE, () => {}, true),
+	// staiir
 	new Sprite(725, 278, 100, 500, 90, "staiir_title", assetType.TEXT, () => {}, true),
+	new Sprite(881, 210, 0, 150, 150, "react_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(881, 230, 0, 350, 150, "sqlite_icon", assetType.IMAGE, () => {}, true),
+	// particlelife
 	new Sprite(663, 215, 100, 700, 90, "particlelife_title", assetType.TEXT, () => {}, true),
+	new Sprite(600, 54, 0, 150, 150, "ts_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(610, 54, 0, 150, 150, "nginx_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(628, 54, 0, 350, 150, "webgl_icon", assetType.IMAGE, () => {}, true),
+	// voichess
+	new Sprite(725, 664, 100, 500, 90, "voichess_title", assetType.TEXT, () => {}, true),
+	new Sprite(881, 600, 0, 150, 150, "react_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(881, 610, 0, 150, 150, "nginx_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(881, 620, 0, 150, 150, "expressjs_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(881, 630, 0, 150, 150, "nodejs_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(881, 640, 0, 150, 150, "socketio_icon", assetType.IMAGE, () => {}, true),
+	// helcim
 	new Sprite(663, 725, 100, 500, 90, "helcim_title", assetType.TEXT, () => {}, true),
+	new Sprite(725, 881, 150, 150, 150, "vue_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(715, 881, 150, 150, 150, "go_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(705, 881, 150, 150, 150, "ts_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(725, 881, 0, 150, 150, "php_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(715, 881, 0, 150, 150, "expressjs_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(705, 881, 0, 150, 150, "nginx_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(725, 881, -150, 150, 150, "mysql_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(715, 881, -150, 150, 150, "docker_icon", assetType.IMAGE, () => {}, true),
+	// gosocket
 	new Sprite(468, 725, 100, 700, 90, "gosocket_title", assetType.TEXT, () => {}, true),
-	new Sprite(278, 725, 100, 700, 90, "teetris_title", assetType.TEXT, () => {}, true),
+	new Sprite(530, 881, 0, 150, 150, "go_icon", assetType.IMAGE, () => {}, true),
+	// noti
 	new Sprite(468, 215, 100, 700, 90, "noti_title", assetType.TEXT, () => {}, true),
+	new Sprite(468, 215, 0, 350, 45, "wip", assetType.TEXT, () => {}, true),
+	// truthjournal
 	new Sprite(278, 215, 100, 700, 90, "truthjournal_title", assetType.TEXT, () => {}, true),
-	].map((s) => {
-		s.pos.x = (s.pos.x/949)*h
-		s.pos.y = (s.pos.y/949)*h
-		return s
-	})
-}
+	new Sprite(278, 215, 0, 350, 45, "wip", assetType.TEXT, () => {}, true),
+	// teetris
+	new Sprite(278, 725, 100, 700, 90, "teetris_title", assetType.TEXT, () => {}, true),
+	new Sprite(278, 725, 0, 350, 45, "wip", assetType.TEXT, () => {}, true),
+]
 

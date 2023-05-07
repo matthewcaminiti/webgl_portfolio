@@ -37,6 +37,10 @@ export class Renderer {
 	}
 
 	loadAssets() {
+		const isPowerOf2 = (x: number): boolean => {
+			return (x & (x - 1)) == 0
+		}
+
 		const loadAsset = (filepath: string) => {
 			const comps = filepath.split('/')
 			const filenamePrefix = comps[comps.length - 1].split('.')[0]
@@ -61,29 +65,61 @@ export class Renderer {
 			image.addEventListener("load", () => {
 				this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[filenamePrefix])
 				this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
-				this.gl.generateMipmap(this.gl.TEXTURE_2D)
+				if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+					this.gl.generateMipmap(this.gl.TEXTURE_2D)
+				} else {
+					this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+					this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+					this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+				}
 			})
 		}
 
 		const textureAssets = ['atlas.png']
 		textureAssets.forEach((filename) => loadAsset(`assets/textures/${filename}`))
 
-		const spriteAssets = ['DIRT_1A.png']
+		const spriteAssets = [
+			'DIRT_1A.png',
+			'react_icon.png',
+			'nginx_icon.png',
+			'expressjs_icon.png',
+			'nodejs_icon.png',
+			'mongodb_icon.png',
+			'sqlite_icon.png',
+			'ts_icon.png',
+			'webgl_icon.png',
+			'socketio_icon.png',
+			'go_icon.png',
+			'vue_icon.png',
+			'php_icon.png',
+			'mysql_icon.png',
+			'docker_icon.png',
+		]
 		spriteAssets.forEach((filename) => loadAsset(`assets/sprites/${filename}`))
 
 		const textAssets = [
 			{key: "greetings", text: "Greetings", w: 1000, h: 180},
 			{key: "welcome", text: "Welcome to my developer portfolio!", w: 1800, h: 80},
 			{key: "look", text: "Have a look around!", w: 1800, h: 80},
+			{key: "wip", text: "WIP", w: 1400, h: 180},
+			// spenny
 			{key: "spenny_title", text: "spenny", w: 1000, h: 180},
-			{key: "voichess_title", text: "Voichess", w: 1000, h: 180},
+			// staiir
 			{key: "staiir_title", text: "staiir", w: 1000, h: 180},
+			// particlelife
 			{key: "particlelife_title", text: "particlelife", w: 1400, h: 180},
+			// voichess
+			{key: "voichess_title", text: "Voichess", w: 1000, h: 180},
+			// helcim
 			{key: "helcim_title", text: "Helcim", w: 1000, h: 180},
+			// gosocket
 			{key: "gosocket_title", text: "gosocket", w: 1400, h: 180},
-			{key: "teetris_title", text: "teetris", w: 1400, h: 180},
+			// noti
 			{key: "noti_title", text: "noti", w: 1400, h: 180},
+			// truthjournal
 			{key: "truthjournal_title", text: "TruthJournal", w: 1400, h: 180},
+			// teetris
+			{key: "teetris_title", text: "teetris", w: 1400, h: 180},
 		]
 		textAssets.forEach(({key, text, w, h}) => {
 			const textCanvas = makeTextCanvas(text, w, h) as HTMLCanvasElement
@@ -611,11 +647,9 @@ export class Renderer {
 		}
 		glUtil.setUniforms(this.programs.walls.uniformSetters, uniforms)
 
-		if (sprite.type === assetType.TEXT) {
-			this.gl.enable(this.gl.BLEND)
-			this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA)
-			this.gl.depthMask(false)
-		}
+		this.gl.enable(this.gl.BLEND)
+		this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA)
+		this.gl.depthMask(false)
 
 		this.gl.drawArrays(
 			this.gl.TRIANGLES,
@@ -623,8 +657,7 @@ export class Renderer {
 			indices.length/2
 		)
 
-		if (sprite.type === assetType.TEXT)
-			this.gl.disable(this.gl.BLEND)
+		this.gl.disable(this.gl.BLEND)
 	}
 
 	drawEntities(
