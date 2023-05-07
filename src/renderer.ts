@@ -93,6 +93,15 @@ export class Renderer {
 			'php_icon.png',
 			'mysql_icon.png',
 			'docker_icon.png',
+			'spenny_icon.png',
+			'staiir_icon.png',
+			'staiir_entropy.png',
+			'staiir_customize.png',
+			'staiir_repertoire.png',
+			'staiir_workout.png',
+			'spenny_input.jpg',
+			'spenny_graph.jpg',
+			'spenny_profile.jpg',
 		]
 		spriteAssets.forEach((filename) => loadAsset(`assets/sprites/${filename}`))
 
