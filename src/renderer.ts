@@ -481,7 +481,7 @@ export class Renderer {
 
 		const uniforms = {
 			u_resolution: [this.w, this.h],
-			u_color: [0.475, 0.490, 0.498, 1]
+			u_color: [0.380, 0.416, 0.419, 1]
 		}
 
 		glUtil.setUniforms(this.programs.plainColor.uniformSetters, uniforms)
@@ -518,7 +518,7 @@ export class Renderer {
 
 		const uniforms: Record<string, any> = {
 			u_resolution: [this.w, this.h],
-			u_color: [0.384, 0.396, 0.404, 1]
+			u_color: [0.259, 0.286, 0.286, 1]
 		}
 
 		glUtil.setUniforms(this.programs.plainColor.uniformSetters, uniforms)
