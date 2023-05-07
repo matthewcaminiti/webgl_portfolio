@@ -114,15 +114,49 @@ export class Renderer {
 			{key: "welcome", text: "Welcome to my developer portfolio!", w: 1800, h: 80},
 			{key: "look", text: "Have a look around!", w: 1800, h: 80},
 			{key: "wip", text: "WIP", w: 1400, h: 180},
-			{key: "this", text: "this.tech (you're standing in it)", w: 1800, h: 80},
+			{key: "this", text: "this.tech", w: 1800, h: 80},
+			{key: "this_desc_0", text: "Aside from my projects, I hope you enjoy this ", w: 1200, h: 40},
+			{key: "this_desc_1", text: "technical exploration. You're in a 2D raycaster,", w: 1400, h: 40},
+			{key: "this_desc_2", text: "which is a rendering system that was used by classic", w: 1800, h: 40},
+			{key: "this_desc_3", text: "games like DOOM and Wolfenstein3D", w: 800, h: 40},
 			// spenny
 			{key: "spenny_title", text: "spenny", w: 1000, h: 180},
+			{key: "spenny_0", text: "'spenny' is a comparative budgeting mobile application.", w: 1800, h: 40},
+			{key: "spenny_1", text: "You can see how other people spend their money given certain criteria.", w: 2000, h: 40},
+			{key: "spenny_2", text: "All user data is aggregated with noise for user privacy.", w: 1800, h: 40},
+			{key: "spenny_3", text: "If your criteria doesn't find any matches, data", w: 1600, h: 40},
+			{key: "spenny_4", text: "pulled from Canada's financial statistics will be used instead.", w: 1900, h: 40},
+			{key: "spenny_5", text: "This project was a fun foray into mobile development and React", w: 1800, h: 40},
+			{key: "spenny_6", text: "Native was generally enjoyable to work with. This also", w: 1600, h: 40},
+			{key: "spenny_7", text: "opened the door to cross-platform mobile development.", w: 1800, h: 40},
 			// staiir
 			{key: "staiir_title", text: "staiir", w: 1000, h: 180},
+			{key: "staiir_0", text: "'staiir' is a Push/Pull/Leg workout routine mobile", w: 1600, h: 40},
+			{key: "staiir_1", text: "application. This app can be used to store, generate, and track", w: 2000, h: 40},
+			{key: "staiir_2", text: "workouts. The randomization functionality is core to this app", w: 1900, h: 40},
+			{key: "staiir_3", text: "but the v2 I intend to release will push it further!", w: 1600, h: 40},
+			{key: "staiir_4", text: "Another application with React Native, and a fun one to boot.", w: 1900, h: 40},
+			{key: "staiir_5", text: "My objective with this application was to keep the scope as tight as", w: 2100, h: 40},
+			{key: "staiir_6", text: "possible, while maintaining enough functionality so that", w: 1600, h: 40},
+			{key: "staiir_7", text: "I could personally use it daily!", w: 1000, h: 40},
 			// particlelife
 			{key: "particlelife_title", text: "particlelife", w: 1400, h: 180},
+			{key: "plife_0", text: "Emergence is beautiful, I tried to achieve it here, and sadly,", w: 2200, h: 40},
+			{key: "plife_1", text: "the screenshot doesn't do it justice. This is a particle life", w: 2200, h: 40},
+			{key: "plife_2", text: "simulation I built to learn WebGL, I highly suggest visiting", w: 2200, h: 40},
+			{key: "plife_3", text: "the website and playing around with the parameters.", w: 1800, h: 40},
+			{key: "plife_4", text: "The simplicity in the parameters for this simulation", w: 1800, h: 40},
+			{key: "plife_5", text: "are what drew me to complete this. Later on,", w: 1800, h: 40},
+			{key: "plife_6", text: "I intend to attempt 3D cellular automata once I head into OpenGL", w: 2200, h: 40},
 			// voichess
 			{key: "voichess_title", text: "Voichess", w: 1000, h: 180},
+			{key: "voichess_0", text: "Voice controlled chess, need I say more?", w: 1200, h: 40},
+			{key: "voichess_1", text: "Play against a computer with a basic AABB search, or create", w: 1900, h: 40},
+			{key: "voichess_2", text: "a lobby and invite your friends!", w: 900, h: 40},
+			{key: "voichess_3", text: "The purpose of this project was to explore websockets and to", w: 1900, h: 40},
+			{key: "voichess_4", text: "familiarize myself with Socket.io. The voice interpretation model", w: 2200, h: 40},
+			{key: "voichess_5", text: "is powered by Picovoice, a really cool company you should check out.", w: 2200, h: 40},
+			{key: "voichess_6", text: "My API token is limited to 3 users per month, kinda cringe.", w: 2000, h: 40},
 			// helcim
 			{key: "helcim_title", text: "Helcim", w: 1000, h: 180},
 			// teetris
@@ -130,7 +164,9 @@ export class Renderer {
 			// noti
 			{key: "noti_title", text: "noti", w: 1400, h: 180},
 			// truthjournal
-			{key: "truthjournal_title", text: "TruthJournal", w: 1400, h: 180},
+			{key: "truthjournal_title", text: "newsdotcom", w: 1400, h: 180},
+			// misc
+			{key: "boo", text: "boo", w: 1000, h: 40},
 		]
 		textAssets.forEach(({key, text, w, h}) => {
 			const textCanvas = makeTextCanvas(text, w, h) as HTMLCanvasElement
