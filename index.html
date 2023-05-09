@@ -98,10 +98,7 @@
 	}
 
 	.open-links-btn {
-		position: fixed;
-		top: 0;
-		left: 0;
-		padding-top: 12px;
+		padding-top: 25px;
 		padding-left: 12px;
 		font-size: 25px;
 		user-select: none;
@@ -171,8 +168,10 @@
 		</div>
 	</div>
 
-	<div class="open-links-btn" onclick="openLinks()">
-		<img src="assets/web/link.png" height="25"/>
+	<div style="position: absolute; width: 100%; display: flex; justify-content: center;">
+		<div class="open-links-btn" onclick="toggleLinkDrawer()">
+			<img src="assets/web/link.png" height="25"/>
+		</div>
 	</div>
 
 	<div id="links" class="links">
@@ -248,6 +247,9 @@
 		<div>
 			- Arrow keys to look around
 		</div>
+		<div>
+			- Press ESC to regain mouse control
+		</div>
 	</div>
 
 	<div style="position:absolute; bottom: 0%; width: 100%; display: flex; justify-content: center; align-items: center; z-index: 2000">
@@ -319,6 +321,13 @@ void main() {
 }
 </script>
 <script>
+const toggleLinkDrawer = () => {
+	const linkDrawer = document.getElementById("links")
+	if (linkDrawer.style.width === "250px")
+		linkDrawer.style.width = "0"
+	else
+		linkDrawer.style.width = "250px"
+}
 const openLinks = () => {
 	document.getElementById("links").style.width = "250px"
 }
