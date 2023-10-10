@@ -173,12 +173,35 @@ export const defaultSprites = [
 	new Sprite(520, 881, 0, 150, 150, "react_icon", assetType.IMAGE, () => {}, true),
 	new Sprite(471, 881, 0, 650, 500, "teetris_websocket", assetType.IMAGE, () => {}, false),
 
-	// noti
-	new Sprite(468, 215, 100, 700, 90, "noti_title", assetType.TEXT, () => {}, true),
+	// questie
+	new Sprite(468, 215, 100, 700, 90, "questie_title", assetType.TEXT, () => {}, true),
 	new Sprite(468, 215, 0, 350, 45, "wip", assetType.TEXT, () => {}, true),
+	new Sprite(405, 90, 100, 700, 20, "questie_0", assetType.TEXT, () => {}, true),
+	new Sprite(405, 90, 60, 700, 20, "questie_1", assetType.TEXT, () => {}, true),
+	new Sprite(405, 90, 20, 700, 20, "questie_2", assetType.TEXT, () => {}, true),
+	new Sprite(405, 90, -20, 400, 20, "questie_3", assetType.TEXT, () => {}, true),
+	new Sprite(530, 98, 100, 700, 20, "questie_4", assetType.TEXT, () => {}, true),
+	new Sprite(530, 98, 60, 700, 20, "questie_5", assetType.TEXT, () => {}, true),
+	new Sprite(530, 98, 20, 400, 20, "questie_6", assetType.TEXT, () => {}, true),
+	new Sprite(405, 54, 0, 150, 150, "react_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(415, 54, 0, 150, 150, "nginx_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(425, 54, 0, 150, 150, "go_icon", assetType.IMAGE, () => {}, true),
 
 	// truthjournal
-	new Sprite(278, 215, 100, 700, 90, "truthjournal_title", assetType.TEXT, () => {}, true),
-	new Sprite(278, 215, 0, 350, 45, "wip", assetType.TEXT, () => {}, true),
+	new Sprite(278, 215, 100, 700, 90, "truthmedia_title", assetType.TEXT, () => {}, true),
+	new Sprite(211, 90, 100, 700, 20, "truthmedia_0", assetType.TEXT, () => {}, true),
+	new Sprite(211, 90, 60, 400, 20, "truthmedia_1", assetType.TEXT, () => {}, true),
+	new Sprite(211, 90, 20, 700, 20, "truthmedia_2", assetType.TEXT, () => {}, true),
+	new Sprite(211, 90, -20, 700, 20, "truthmedia_3", assetType.TEXT, () => {}, true),
+	new Sprite(335, 98, 100, 700, 20, "truthmedia_4", assetType.TEXT, () => {}, true),
+	new Sprite(335, 98, 60, 700, 20, "truthmedia_5", assetType.TEXT, () => {}, true),
+	new Sprite(335, 98, 20, 700, 20, "truthmedia_6", assetType.TEXT, () => {}, true),
+	new Sprite(211, 54, 0, 150, 150, "react_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(221, 54, 0, 150, 150, "nginx_icon", assetType.IMAGE, () => {}, true),
+	new Sprite(279, 54, 0, 700, 400, "truthmedia", assetType.IMAGE, () => {}, true),
+
+    // noti
+	new Sprite(223, 277, 100, 700, 90, "noti_title", assetType.TEXT, () => {}, true),
+	new Sprite(223, 277, 0, 350, 45, "wip", assetType.TEXT, () => {}, true),
 ]
 

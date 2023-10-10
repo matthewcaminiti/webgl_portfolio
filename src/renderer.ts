@@ -106,6 +106,7 @@ export class Renderer {
 			'voichess_play.png',
 			'particlelife_0.png',
 			'teetris_websocket.png',
+			'truthmedia.png',
 		]
 		spriteAssets.forEach((filename) => loadAsset(`assets/sprites/${filename}`))
 
@@ -161,10 +162,26 @@ export class Renderer {
 			{key: "helcim_title", text: "Helcim", w: 1000, h: 180},
 			// teetris
 			{key: "teetris_title", text: "teetris", w: 1400, h: 180},
+			// questie
+			{key: "questie_title", text: "questie", w: 1400, h: 180},
+			{key: "questie_0", text: "There were a couple things I wanted to experiment with for this", w: 1900, h: 40},
+			{key: "questie_1", text: "project. Most importantly: passwordless authentication, mobile", w: 1800, h: 40},
+			{key: "questie_2", text: "push notifications, and developing a visual language (with solid)", w: 2000, h: 40},
+			{key: "questie_3", text: "components to re-use in the future.", w: 900, h: 40},
+			{key: "questie_4", text: "The application is a straightforward to-do list application.", w: 1800, h: 40},
+			{key: "questie_5", text: "Nothing particularly fancy, this was a learning project in", w: 1600, h: 40},
+			{key: "questie_6", text: "preparation for noti!", w: 900, h: 40},
+			// truthmedia
+			{key: "truthmedia_title", text: "truthmedia", w: 1400, h: 180},
+			{key: "truthmedia_0", text: "I apologize in advance for creating this. This was a weekend", w: 1900, h: 40},
+			{key: "truthmedia_1", text: "project I made with my friend Matt Kadatz.", w: 1000, h: 40},
+			{key: "truthmedia_2", text: "The intention behind the project was to play around with OpenAI's", w: 2000, h: 40},
+			{key: "truthmedia_3", text: "API. It was also just a fun weekend activity.", w: 1600, h: 40},
+			{key: "truthmedia_4", text: "The project was built with NextJS (against my wishes) and we", w: 1900, h: 40},
+			{key: "truthmedia_5", text: "have a CRON running daily (nodejs) that generates more fake content.", w: 2000, h: 40},
+			{key: "truthmedia_6", text: "If you figure out the secret code, you can create your own articles ;).", w: 2000, h: 40},
 			// noti
 			{key: "noti_title", text: "noti", w: 1400, h: 180},
-			// truthjournal
-			{key: "truthjournal_title", text: "newsdotcom", w: 1400, h: 180},
 			// misc
 			{key: "boo", text: "boo", w: 1000, h: 40},
 		]
