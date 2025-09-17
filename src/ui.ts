@@ -1,108 +1,114 @@
-import {Solver} from "./solver"
+import { Solver } from './solver';
 
 export class PerfWindow {
-	fpsEle: HTMLDivElement
-	fpsWalkingSum: number
+  fpsEle: HTMLDivElement;
+  fpsWalkingSum: number;
 
-	unknownEle: HTMLDivElement
+  unknownEle: HTMLDivElement;
 
-	solverEle: HTMLDivElement
-	solverTimeWalkingSum: number
+  solverEle: HTMLDivElement;
+  solverTimeWalkingSum: number;
 
-	renderEle: HTMLDivElement
-	renderTimeWalkingSum: number
+  renderEle: HTMLDivElement;
+  renderTimeWalkingSum: number;
 
-	sampleCount: number
+  sampleCount: number;
 
-	constructor() {
-		this.fpsEle = document.getElementById("fps-ele") as HTMLDivElement
-		this.fpsWalkingSum = 0
+  constructor() {
+    this.fpsEle = document.getElementById('fps-ele') as HTMLDivElement;
+    this.fpsWalkingSum = 0;
 
-		this.unknownEle = document.getElementById("unknown-ele") as HTMLDivElement
+    this.unknownEle = document.getElementById('unknown-ele') as HTMLDivElement;
 
-		this.solverEle = document.getElementById("solver-ele") as HTMLDivElement
-		this.solverTimeWalkingSum = 0
+    this.solverEle = document.getElementById('solver-ele') as HTMLDivElement;
+    this.solverTimeWalkingSum = 0;
 
-		this.renderEle = document.getElementById("render-ele") as HTMLDivElement
-		this.renderTimeWalkingSum = 0
+    this.renderEle = document.getElementById('render-ele') as HTMLDivElement;
+    this.renderTimeWalkingSum = 0;
 
-		this.sampleCount = 0
-	}
+    this.sampleCount = 0;
+  }
 
-	update(dt: number) {
-		if (this.sampleCount++ < 50) return
+  update(dt: number) {
+    if (this.sampleCount++ < 50) return;
 
-		this.fpsEle.textContent = (this.fpsWalkingSum / this.sampleCount).toFixed(2)
-		this.fpsWalkingSum = 0
+    this.fpsEle.textContent = (this.fpsWalkingSum / this.sampleCount).toFixed(
+      2,
+    );
+    this.fpsWalkingSum = 0;
 
-		this.unknownEle.textContent = `${(dt*1000 - (this.solverTimeWalkingSum/this.sampleCount + this.renderTimeWalkingSum/this.sampleCount)).toFixed(2)}ms`
+    this.unknownEle.textContent = `${(dt * 1000 - (this.solverTimeWalkingSum / this.sampleCount + this.renderTimeWalkingSum / this.sampleCount)).toFixed(2)}ms`;
 
-		this.solverEle.textContent = `${(this.solverTimeWalkingSum/this.sampleCount).toFixed(2)}ms (${((this.solverTimeWalkingSum/this.sampleCount)/ (dt*1000) * 100).toFixed(2)}%)`
-		this.solverTimeWalkingSum = 0
+    this.solverEle.textContent = `${(this.solverTimeWalkingSum / this.sampleCount).toFixed(2)}ms (${((this.solverTimeWalkingSum / this.sampleCount / (dt * 1000)) * 100).toFixed(2)}%)`;
+    this.solverTimeWalkingSum = 0;
 
-		this.renderEle.textContent = `${(this.renderTimeWalkingSum/this.sampleCount).toFixed(2)}ms (${((this.renderTimeWalkingSum/this.sampleCount)/ (dt*1000) * 100).toFixed(2)}%)`
-		this.renderTimeWalkingSum = 0
+    this.renderEle.textContent = `${(this.renderTimeWalkingSum / this.sampleCount).toFixed(2)}ms (${((this.renderTimeWalkingSum / this.sampleCount / (dt * 1000)) * 100).toFixed(2)}%)`;
+    this.renderTimeWalkingSum = 0;
 
-		this.sampleCount = 0
-	}
+    this.sampleCount = 0;
+  }
 
-	addFps(x: number) {
-		this.fpsWalkingSum += x
-	}
+  addFps(x: number) {
+    this.fpsWalkingSum += x;
+  }
 
-	addSolverTime(x: number) {
-		this.solverTimeWalkingSum += x
-	}
+  addSolverTime(x: number) {
+    this.solverTimeWalkingSum += x;
+  }
 
-	addRenderTime(x: number) {
-		this.renderTimeWalkingSum += x
-	}
+  addRenderTime(x: number) {
+    this.renderTimeWalkingSum += x;
+  }
 }
 
 export class ControlPanel {
-	solver: Solver
-	is2dVisible: boolean
+  solver: Solver;
+  is2dVisible: boolean;
 
-	constructor(solver: Solver) {
-		this.solver = solver
-		this.is2dVisible = false
+  constructor(solver: Solver) {
+    this.solver = solver;
+    this.is2dVisible = false;
 
-		const distEle = document.getElementById("raycast-dist-ele") as HTMLElement
-		distEle.textContent = this.solver.renderDistance.toString()
+    const distEle = document.getElementById('raycast-dist-ele') as HTMLElement;
+    distEle.textContent = this.solver.renderDistance.toString();
 
-		document.querySelectorAll("#raycast-dist-btn").forEach((btn) => {
-			btn.addEventListener("click", () => {
-				const incr = btn.textContent ? +btn.textContent : 0
-				if ((this.solver.renderDistance + incr) <= 0) {
-					alert("no")
-					return
-				}
+    document.querySelectorAll('#raycast-dist-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const incr = btn.textContent ? +btn.textContent : 0;
+        if (this.solver.renderDistance + incr <= 0) {
+          alert('no');
+          return;
+        }
 
-				this.solver.renderDistance += incr
-				distEle.textContent = this.solver.renderDistance.toString()
-			})
-		})
+        this.solver.renderDistance += incr;
+        distEle.textContent = this.solver.renderDistance.toString();
+      });
+    });
 
-		const rayCountEle = document.getElementById("raycast-count-ele") as HTMLElement
-		rayCountEle.textContent = this.solver.nRays.toString()
+    const rayCountEle = document.getElementById(
+      'raycast-count-ele',
+    ) as HTMLElement;
+    rayCountEle.textContent = this.solver.nRays.toString();
 
-		document.querySelectorAll("#raycast-count-btn").forEach((btn) => {
-			btn.addEventListener("click", () => {
-				const incr = btn.textContent ? +btn.textContent : 0
-				if ((this.solver.nRays + incr) <= 0) {
-					alert("no")
-					return
-				}
-				this.solver.nRays += incr
+    document.querySelectorAll('#raycast-count-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const incr = btn.textContent ? +btn.textContent : 0;
+        if (this.solver.nRays + incr <= 0) {
+          alert('no');
+          return;
+        }
+        this.solver.nRays += incr;
 
-				rayCountEle.textContent = this.solver.nRays.toString()
-			})
-		})
+        rayCountEle.textContent = this.solver.nRays.toString();
+      });
+    });
 
-		const toggle2dBtn = document.getElementById("toggle-2d-view") as HTMLInputElement
-		toggle2dBtn.addEventListener("click", () => {
-			this.is2dVisible = !this.is2dVisible
-			toggle2dBtn.textContent = `${this.is2dVisible ? 'Hide' : 'Show'} 2d view`
-		})
-	}
+    const toggle2dBtn = document.getElementById(
+      'toggle-2d-view',
+    ) as HTMLInputElement;
+    toggle2dBtn.addEventListener('click', () => {
+      this.is2dVisible = !this.is2dVisible;
+      toggle2dBtn.textContent = `${this.is2dVisible ? 'Hide' : 'Show'} 2d view`;
+    });
+  }
 }

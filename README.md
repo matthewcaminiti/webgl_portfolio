@@ -1,6 +1,6 @@
 # webgl portfolio
 
-# dev
+## dev
 
 - run webpack build watcher, and serve current dir
 
@@ -8,7 +8,7 @@
 
 `live-server`
 
-# deploy
+## deploy
 
 - `/assets`, `/dist`, and `index.html` are symlinked to `/opt/webgl_portfolio/public`
 - nginx points to `/opt/webgl_portfolio/public`

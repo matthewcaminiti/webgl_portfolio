@@ -1,387 +1,680 @@
-<!DOCTYPE html>
-<head>
-	<meta charset="utf-8" />
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-16x16.png">
-	<title>Tito's Lounge</title>
-	<script src="./dist/bundle.js" defer></script>
-	<style>
-	* {
-		margin: 0;
-		padding: 0;
-	}
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="./assets/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./assets/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="./assets/favicon-16x16.png"
+    />
+    <title>Tito's Lounge</title>
+    <script src="./dist/bundle.js" defer></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
 
-	html, body {
-		height: 100%;
-		margin: 0;
-	}
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
 
-	#canvas {
-		width: 100%;
-		height: 100%;
-		display: block;
-	}
+      #canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
 
-	.stat-row {
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-	}
+      .stat-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
 
-	#raycast-dist-btn, #raycast-count-btn {
-		flex: 1;
-	}
+      /* Button styling for consistent debug aesthetic */
+      button {
+        background-color: #333;
+        color: white;
+        border: 1px solid #666;
+        padding: 4px 8px;
+        margin: 2px;
+        cursor: pointer;
+        font-family: monospace;
+        font-size: 11px;
+        transition: all 0.2s ease;
+      }
 
-	.social-btn {
-		padding: 1rem;
-	}
+      button:hover {
+        background-color: #555;
+        border-color: #888;
+      }
 
-	.social-btn > a {
-		text-decoration: none;
-	}
+      button:active {
+        background-color: #222;
+        border-color: #999;
+      }
 
-	.links {
-		height: 100%;
-		width: 0;
-		position: fixed;
-		z-index: 1;
-		top: 0;
-		left: 0;
-		background-color: rgba(0, 0, 0, 0.5);
-		overflow-x: hidden;
-		padding-top: 5rem;
-		transition: 0.5s;
-	}
+      #raycast-dist-btn,
+      #raycast-count-btn {
+        flex: 1;
+        min-width: 35px;
+      }
 
-	.links a {
-		padding: 8px 8px 8px 32px;
-		text-decoration: none;
-		font-size: 14px;
-		color: #818181;
-		display: block;
-		transition: 0.3;
-	}
+      #toggle-2d-view {
+        margin-top: 8px;
+        padding: 6px 12px;
+        font-size: 12px;
+      }
 
-	.links a:hover {
-		color: #f1f1f1;
-	}
+      .links {
+        height: 100%;
+        width: 0;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.9);
+        border-right: 2px solid #666;
+        overflow-x: hidden;
+        padding-top: 5rem;
+        transition: all 0.3s ease;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+      }
 
-	.links .closebtn {
-		position: absolute;
-		top: 0;
-		right: 25px;
-		font-size: 36px;
-		margin-left: 50px;
-	}
+      .links a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 14px;
+        color: #818181;
+        display: block;
+        transition: 0.3;
+      }
 
-	.accordion {
-		background-color: #eee;
-		color: #444;
-		cursor: pointer;
-		padding: 18px;
-		width: 100%;
-		text-align: left;
-		border: none;
-		outline: none;
-		transition: 0.4;
-	}
+      .links a:hover {
+        color: #f1f1f1;
+      }
 
-	.active, .accordion:hover {
-		background-color: #ccc;
-	}
+      .links .closebtn {
+        position: absolute;
+        top: 0;
+        right: 25px;
+        font-size: 36px;
+        margin-left: 50px;
+      }
 
-	.panel {
-		padding: 0 1px;
-		background-color: white;
-		display: none;
-		overflow: hidden;
-	}
+      .accordion {
+        background-color: #333;
+        color: #ccc;
+        cursor: pointer;
+        padding: 12px 18px;
+        width: 100%;
+        text-align: left;
+        border: 1px solid #666;
+        border-bottom: none;
+        outline: none;
+        transition: all 0.2s ease;
+        font-family: monospace;
+        font-size: 13px;
+        font-weight: bold;
+      }
 
-	.open-links-btn {
-		padding-top: 25px;
-		padding-left: 12px;
-		font-size: 25px;
-		user-select: none;
-		cursor: pointer;
-	}
+      .accordion:last-of-type {
+        border-bottom: 1px solid #666;
+      }
 
-	#focus-warning {
-		position:absolute;
-		width: 100%;
-		top: 50%;
-		text-align: center;
-		color: white;
-		padding: 2rem 0;
-		font-size: 25px;
-		user-select: none;
-		background-color: rgba(0, 0, 0, 0.8);
-	}
+      .active,
+      .accordion:hover {
+        background-color: #555;
+        color: white;
+        border-color: #888;
+      }
 
-	#mobile-overlay {
-		position: fixed;
-		display: none;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background-color: rgba(255, 255, 255, 0.8);
-		z-index: 2000;
-	}
+      .panel {
+        padding: 8px 18px;
+        background-color: #222;
+        border: 1px solid #666;
+        border-top: none;
+        display: none;
+        overflow: hidden;
+      }
 
-	</style>
-</head>
-<body style="background-color:black;">
-	<div id="mobile-overlay">
-		<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; color: black; height: 100%; padding-inline: 2rem;">
-		<p style="text-align: center">
-			It appears you are on a mobile device (sad!).
-		</p>
-		<br/>
-		<p style="text-align: center">
-			If you would like to experience this website, please do visit on a non-handheld computer.
-		</p>
-		<br/>
-		<p style="text-align: center">
-			If you want me to support mobile, reach out to me via the links below!
-		</p>
-		</div>
+      .panel a {
+        color: #aaa !important;
+        font-family: monospace;
+        font-size: 12px;
+        padding: 4px 0;
+      }
 
-        <div style="position:absolute; bottom: 0%; width: 100%; display: flex; justify-content: center; align-items: center; z-index: 998">
-            <div class="social-btn">
-                <a href="https://github.com/matthewcaminiti" target="_blank">
-                    <img src="./assets/web/github.png" height="30"/>
-                </a>
-            </div>
-            <div class="social-btn">
-                <a href="https://www.linkedin.com/in/matthew-caminiti/" target="_blank">
-                    <img src="./assets/web/linkedin.png" height="30"/>
-                </a>
-            </div>
-            <div class="social-btn">
-                <a href="mailto:matthew.z.caminiti@gmail.com">
-                    <img src="./assets/web/email.png" height="30"/>
-                </a>
-            </div>
+      .panel a:hover {
+        color: #fff !important;
+      }
+
+      /* Standardized info panels */
+      .info-panel {
+        color: white;
+        background-color: rgba(0, 0, 0, 0.85);
+        border: 1px solid #666;
+        font-family: monospace;
+        font-size: 12px;
+        font-weight: bold;
+        padding: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      .info-panel-title {
+        color: #ccc;
+        font-size: 11px;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Bottom action buttons */
+      .bottom-actions {
+        position: fixed;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 12px;
+        z-index: 1000;
+      }
+
+      .action-btn {
+        background-color: rgba(0, 0, 0, 0.85);
+        border: 1px solid #666;
+        border-radius: 4px;
+        padding: 12px 16px;
+        color: white;
+        text-decoration: none;
+        font-family: monospace;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 80px;
+        height: 24px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      .action-btn:hover {
+        background-color: rgba(0, 0, 0, 0.95);
+        border-color: #888;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        color: white;
+        text-decoration: none;
+      }
+
+      .action-btn svg {
+        width: 14px;
+        height: 14px;
+        margin-right: 6px;
+        fill: #ccc;
+      }
+
+      .action-btn:hover svg {
+        fill: white;
+      }
+
+      #focus-warning {
+        position: fixed;
+        width: 100%;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        text-align: center;
+        color: white;
+        padding: 16px 0;
+        font-family: monospace;
+        font-size: 16px;
+        font-weight: bold;
+        user-select: none;
+        background-color: rgba(0, 0, 0, 0.95);
+        border-top: 2px solid #666;
+        border-bottom: 2px solid #666;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+        z-index: 0;
+        transition: all 0.2s ease;
+        pointer-events: none;
+      }
+
+      #focus-warning::before {
+        content: '⚠ ';
+        color: #ffa500;
+        font-size: 18px;
+      }
+
+      #mobile-overlay {
+        position: fixed;
+        display: none;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.95);
+        z-index: 2000;
+        font-family: monospace;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body style="background-color: black">
+    <div id="mobile-overlay">
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          color: white;
+          height: 100%;
+          padding-inline: 2rem;
+          font-family: monospace;
+          font-weight: bold;
+        "
+      >
+        <div
+          style="
+            text-align: center;
+            font-size: 18px;
+            line-height: 1.6;
+            max-width: 400px;
+          "
+        >
+          <div
+            style="
+              color: #ccc;
+              font-size: 14px;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              margin-bottom: 20px;
+            "
+          >
+            Mobile Device Detected
+          </div>
+          <div style="margin-bottom: 16px">
+            It appears you are on a mobile device (sad!).
+          </div>
+          <div style="margin-bottom: 16px">
+            If you would like to experience this website, please do visit on a
+            non-handheld computer.
+          </div>
+          <div style="margin-bottom: 24px">
+            If you want me to support mobile, reach out to me via the links
+            below!
+          </div>
         </div>
-	</div>
+      </div>
 
-	<div style="position: fixed; top: 1rem; right: 1rem; width: 12rem; color: white; background-color: rgba(0, 0, 0, 0.8); font-weight: bold; display: flex; flex-direction: column;">
-		<div id="stat-inner">
-			<div class="stat-row">
-				<div id="fps-ele">0.00</div>
-				<div>FPS</div>
-			</div>
-			<div class="stat-row">
-				<div id="solver-ele">0.00</div>
-				<div>solver</div>
-			</div>
-			<div class="stat-row">
-				<div id="render-ele">0.00</div>
-				<div>render</div>
-			</div>
-			<div class="stat-row">
-				<div id="unknown-ele">0.00</div>
-				<div>unknown</div>
-			</div>
-		</div>
-	</div>
+      <div
+        style="
+          position: absolute;
+          bottom: 2rem;
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 998;
+          gap: 12px;
+        "
+      >
+        <a
+          href="https://github.com/matthewcaminiti"
+          target="_blank"
+          class="action-btn"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+            <path
+              d="M237.9 461.4C237.9 463.4 235.6 465 232.7 465C229.4 465.3 227.1 463.7 227.1 461.4C227.1 459.4 229.4 457.8 232.3 457.8C235.3 457.5 237.9 459.1 237.9 461.4zM206.8 456.9C206.1 458.9 208.1 461.2 211.1 461.8C213.7 462.8 216.7 461.8 217.3 459.8C217.9 457.8 216 455.5 213 454.6C210.4 453.9 207.5 454.9 206.8 456.9zM251 455.2C248.1 455.9 246.1 457.8 246.4 460.1C246.7 462.1 249.3 463.4 252.3 462.7C255.2 462 257.2 460.1 256.9 458.1C256.6 456.2 253.9 454.9 251 455.2zM316.8 72C178.1 72 72 177.3 72 316C72 426.9 141.8 521.8 241.5 555.2C254.3 557.5 258.8 549.6 258.8 543.1C258.8 536.9 258.5 502.7 258.5 481.7C258.5 481.7 188.5 496.7 173.8 451.9C173.8 451.9 162.4 422.8 146 415.3C146 415.3 123.1 399.6 147.6 399.9C147.6 399.9 172.5 401.9 186.2 425.7C208.1 464.3 244.8 453.2 259.1 446.6C261.4 430.6 267.9 419.5 275.1 412.9C219.2 406.7 162.8 398.6 162.8 302.4C162.8 274.9 170.4 261.1 186.4 243.5C183.8 237 175.3 210.2 189 175.6C209.9 169.1 258 202.6 258 202.6C278 197 299.5 194.1 320.8 194.1C342.1 194.1 363.6 197 383.6 202.6C383.6 202.6 431.7 169 452.6 175.6C466.3 210.3 457.8 237 455.2 243.5C471.2 261.2 481 275 481 302.4C481 398.9 422.1 406.6 366.2 412.9C375.4 420.8 383.2 435.8 383.2 459.3C383.2 493 382.9 534.7 382.9 542.9C382.9 549.4 387.5 557.3 400.2 555C500.2 521.8 568 426.9 568 316C568 177.3 455.5 72 316.8 72zM169.2 416.9C167.9 417.9 168.2 420.2 169.9 422.1C171.5 423.7 173.8 424.4 175.1 423.1C176.4 422.1 176.1 419.8 174.4 417.9C172.8 416.3 170.5 415.6 169.2 416.9zM158.4 408.8C157.7 410.1 158.7 411.7 160.7 412.7C162.3 413.7 164.3 413.4 165 412C165.7 410.7 164.7 409.1 162.7 408.1C160.7 407.5 159.1 407.8 158.4 408.8zM190.8 444.4C189.2 445.7 189.8 448.7 192.1 450.6C194.4 452.9 197.3 453.2 198.6 451.6C199.9 450.3 199.3 447.3 197.3 445.4C195.1 443.1 192.1 442.8 190.8 444.4zM179.4 429.7C177.8 430.7 177.8 433.3 179.4 435.6C181 437.9 183.7 438.9 185 437.9C186.6 436.6 186.6 434 185 431.7C183.6 429.4 181 428.4 179.4 429.7z"
+            />
+          </svg>
+          GITHUB
+        </a>
+        <a
+          href="https://www.linkedin.com/in/matthew-caminiti/"
+          target="_blank"
+          class="action-btn"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+            <path
+              d="M512 96L127.9 96C110.3 96 96 110.5 96 128.3L96 511.7C96 529.5 110.3 544 127.9 544L512 544C529.6 544 544 529.5 544 511.7L544 128.3C544 110.5 529.6 96 512 96zM231.4 480L165 480L165 266.2L231.5 266.2L231.5 480L231.4 480zM198.2 160C219.5 160 236.7 177.2 236.7 198.5C236.7 219.8 219.5 237 198.2 237C176.9 237 159.7 219.8 159.7 198.5C159.7 177.2 176.9 160 198.2 160zM480.3 480L413.9 480L413.9 376C413.9 351.2 413.4 319.3 379.4 319.3C344.8 319.3 339.5 346.3 339.5 374.2L339.5 480L273.1 480L273.1 266.2L336.8 266.2L336.8 295.4L337.7 295.4C346.6 278.6 368.3 260.9 400.6 260.9C467.8 260.9 480.3 305.2 480.3 362.8L480.3 480z"
+            />
+          </svg>
+          LINKEDIN
+        </a>
+        <a href="mailto:matthew.z.caminiti@gmail.com" class="action-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+            <path
+              d="M112 128C85.5 128 64 149.5 64 176C64 191.1 71.1 205.3 83.2 214.4L291.2 370.4C308.3 383.2 331.7 383.2 348.8 370.4L556.8 214.4C568.9 205.3 576 191.1 576 176C576 149.5 554.5 128 528 128L112 128zM64 260L64 448C64 483.3 92.7 512 128 512L512 512C547.3 512 576 483.3 576 448L576 260L377.6 408.8C343.5 434.4 296.5 434.4 262.4 408.8L64 260z"
+            />
+          </svg>
+          EMAIL
+        </a>
+      </div>
+    </div>
 
-	<div style="position: absolute; width: 100%; display: flex; justify-content: center;">
-		<div class="open-links-btn" onclick="toggleLinkDrawer()">
-			<img src="assets/web/link.png" height="25"/>
-		</div>
-	</div>
-
-	<div id="links" class="links">
-		<a href="javascript:void(0)" class="closebtn" onclick="closeLinks()">&times;</a>
-		<button class="accordion">this</button>
-		<div class="panel">
-			<a href="https://github.com/matthewcaminiti/webgl_portfolio" target="_blank">github</a>
-		</div>
-
-		<button class="accordion">spenny</button>
-		<div class="panel">
-			<a href="https://apps.apple.com/ca/app/spenny/id1599181818" target="_blank">app store</a>
-			<a href="#">github (msg me for access)</a>
-		</div>
-
-		<button class="accordion">staiir</button>
-		<div class="panel">
-			<a href="https://apps.apple.com/my/app/staiir/id6443690853" target="_blank">app store</a>
-			<a href="#">github (msg me for access)</a>
-		</div>
-
-		<button class="accordion">voichess</button>
-		<div class="panel">
-			<a href="https://voichess.titolounge.dev/" target="_blank">website</a>
-			<a href="#">github (msg me for access)</a>
-		</div>
-
-		<button class="accordion">particlelife</button>
-		<div class="panel">
-			<a href="https://particlelife.titolounge.dev/" target="_blank">website</a>
-			<a href="https://github.com/matthewcaminiti/particle_life" target="_blank">github</a>
-		</div>
-
-		<button class="accordion">teetris</button>
-		<div class="panel">
-			<a href="#">github (msg me for access)</a>
-		</div>
-
-		<button class="accordion">big.chungus.ai</button>
-		<div class="panel">
-			<a href="https://big.chungus.ai/" target="_blank">website</a>
-			<a href="#">github (msg me for access)</a>
-		</div>
-
-		<button class="accordion">questie</button>
-		<div class="panel">
-			<a href="https://questie.titolounge.dev/" target="_blank">website</a>
-			<a href="#">github (msg me for access)</a>
-		</div>
-	</div>
-
-	<div style="position: absolute; bottom: 0rem; right: 1rem; width: 15rem; color: white; background-color: rgba(0, 0, 0, 0.8); font-weight: bold; display: flex; flex-direction: column; z-index: 1005;">
-		<div style="display: flex; flex-direction: column">
-			Render distance
-			<div style="display: flex; flex-direction: row; align-items: center; justify-content: space-evenly; width: 100%;">
-				<button id="raycast-dist-btn">-100</button>
-				<button id="raycast-dist-btn">-50</button>
-				<div id="raycast-dist-ele" style="color: white; font-weight: bold;">0</div>
-				<button id="raycast-dist-btn">+50</button>
-				<button id="raycast-dist-btn">+100</button>
-			</div>
-			Num rays
-			<div style="display: flex; flex-direction: row; align-items: center; justify-content: space-evenly; width: 100%;">
-				<button id="raycast-count-btn">-100</button>
-				<button id="raycast-count-btn">-50</button>
-				<div id="raycast-count-ele" style="color: white; font-weight: bold;">0</div>
-				<button id="raycast-count-btn">+50</button>
-				<button id="raycast-count-btn">+100</button>
-			</div>
-			<button id="toggle-2d-view">Show 2d view</button>
-		</div>
-	</div>
-
-	<div id="focus-warning">
-		Click to focus
-	</div>
-
-	<div style="position: absolute; bottom: 0rem; left: 1rem; width: 20rem; color: white; background-color: rgba(0, 0, 0, 0.8); font-weight: bold; display: flex; flex-direction: column;">
-		<div>
-			- Movement: WASD
-		</div>
-		<div>
-			- Move mouse to look around, or
-		</div>
-		<div>
-			- Arrow keys to look around
-		</div>
-		<div>
-			- Press ESC to regain mouse control
-		</div>
-        <div>
-            - Press the link icon at the top of the page to see links to my projects!
+    <div
+      class="info-panel"
+      style="position: fixed; top: 1rem; right: 1rem; width: 12rem"
+    >
+      <div class="info-panel-title">Performance</div>
+      <div id="stat-inner">
+        <div class="stat-row">
+          <div id="fps-ele">0.00</div>
+          <div>FPS</div>
         </div>
-	</div>
+        <div class="stat-row">
+          <div id="solver-ele">0.00</div>
+          <div>solver</div>
+        </div>
+        <div class="stat-row">
+          <div id="render-ele">0.00</div>
+          <div>render</div>
+        </div>
+        <div class="stat-row">
+          <div id="unknown-ele">0.00</div>
+          <div>unknown</div>
+        </div>
+      </div>
+    </div>
 
-	<div style="position:absolute; bottom: 0%; width: 100%; display: flex; justify-content: center; align-items: center; z-index: 998">
-		<div class="social-btn">
-			<a href="https://github.com/matthewcaminiti" target="_blank">
-				<img src="./assets/web/github.png" height="30"/>
-			</a>
-		</div>
-		<div class="social-btn">
-			<a href="https://www.linkedin.com/in/matthew-caminiti/" target="_blank">
-				<img src="./assets/web/linkedin.png" height="30"/>
-			</a>
-		</div>
-		<div class="social-btn">
-			<a href="mailto:matthew.z.caminiti@gmail.com">
-				<img src="./assets/web/email.png" height="30"/>
-			</a>
-		</div>
-	</div>
+    <div id="links" class="links">
+      <a href="javascript:void(0)" class="closebtn" onclick="closeLinks()"
+        >&times;</a
+      >
+      <button class="accordion">this</button>
+      <div class="panel">
+        <a
+          href="https://github.com/matthewcaminiti/webgl_portfolio"
+          target="_blank"
+          >github</a
+        >
+      </div>
 
-	<canvas id="canvas" width="400" height="300" tabindex="0"></canvas>
-<script id="v-plainColor" type="x-shader/x-vector">
-attribute vec2 a_position;
+      <button class="accordion">spenny</button>
+      <div class="panel">
+        <a
+          href="https://apps.apple.com/ca/app/spenny/id1599181818"
+          target="_blank"
+          >app store</a
+        >
+        <a href="#">github (msg me for access)</a>
+      </div>
 
-uniform vec2 u_resolution;
+      <button class="accordion">staiir</button>
+      <div class="panel">
+        <a
+          href="https://apps.apple.com/my/app/staiir/id6443690853"
+          target="_blank"
+          >app store</a
+        >
+        <a href="#">github (msg me for access)</a>
+      </div>
 
-void main() {
-	vec2 clipSpace = (a_position / u_resolution * 2.0) - 1.0;
-	gl_Position = vec4(clipSpace.x, clipSpace.y * -1.0, 0, 1);
-}
-</script>
-<script id="f-plainColor" type="x-shader/x-fragment">
-precision mediump float;
+      <button class="accordion">voichess</button>
+      <div class="panel">
+        <a href="https://voichess.titolounge.dev/" target="_blank">website</a>
+        <a href="#">github (msg me for access)</a>
+      </div>
 
-uniform vec4 u_color;
-void main() {
-	gl_FragColor = u_color;
-}
-</script>
-<script id="v-walls" type="x-shader/x-vector">
-attribute vec2 a_position;
-attribute vec2 a_texcoord;
-attribute float a_dist;
+      <button class="accordion">particlelife</button>
+      <div class="panel">
+        <a href="https://particlelife.titolounge.dev/" target="_blank"
+          >website</a
+        >
+        <a
+          href="https://github.com/matthewcaminiti/particle_life"
+          target="_blank"
+          >github</a
+        >
+      </div>
 
-uniform vec2 u_resolution;
+      <button class="accordion">teetris</button>
+      <div class="panel">
+        <a href="#">github (msg me for access)</a>
+      </div>
 
-varying vec2 v_texcoord;
-varying float v_dist;
+      <button class="accordion">big.chungus.ai</button>
+      <div class="panel">
+        <a href="https://big.chungus.ai/" target="_blank">website</a>
+        <a href="#">github (msg me for access)</a>
+      </div>
 
-void main() {
-	vec2 clipSpace = (a_position / u_resolution * 2.0) - 1.0;
+      <button class="accordion">questie</button>
+      <div class="panel">
+        <a href="https://questie.titolounge.dev/" target="_blank">website</a>
+        <a href="#">github (msg me for access)</a>
+      </div>
+    </div>
 
-	gl_Position = vec4(clipSpace.x, clipSpace.y * -1.0, 0, 1);
+    <div
+      class="info-panel"
+      style="
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        width: 15rem;
+        z-index: 1005;
+      "
+    >
+      <div style="display: flex; flex-direction: column">
+        <div class="info-panel-title">Render distance</div>
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-evenly;
+            width: 100%;
+            margin-bottom: 8px;
+          "
+        >
+          <button id="raycast-dist-btn">-100</button>
+          <button id="raycast-dist-btn">-50</button>
+          <div
+            id="raycast-dist-ele"
+            style="
+              color: white;
+              font-weight: bold;
+              min-width: 30px;
+              text-align: center;
+            "
+          >
+            0
+          </div>
+          <button id="raycast-dist-btn">+50</button>
+          <button id="raycast-dist-btn">+100</button>
+        </div>
+        <div class="info-panel-title">Rays</div>
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-evenly;
+            width: 100%;
+            margin-bottom: 8px;
+          "
+        >
+          <button id="raycast-count-btn">-100</button>
+          <button id="raycast-count-btn">-50</button>
+          <div
+            id="raycast-count-ele"
+            style="
+              color: white;
+              font-weight: bold;
+              min-width: 30px;
+              text-align: center;
+            "
+          >
+            0
+          </div>
+          <button id="raycast-count-btn">+50</button>
+          <button id="raycast-count-btn">+100</button>
+        </div>
+        <button id="toggle-2d-view">Show 2D view</button>
+      </div>
+    </div>
 
-	v_texcoord = a_texcoord;
-	v_dist = a_dist;
-}
-</script>
-<script id="f-walls" type="x-shader/x-fragment">
-precision mediump float;
+    <div id="focus-warning">Click to focus</div>
 
-uniform sampler2D u_texture;
+    <div
+      class="info-panel"
+      style="position: absolute; bottom: 1rem; left: 1rem; width: 20rem"
+    >
+      <div class="info-panel-title">Controls</div>
+      <div>• Movement: WASD</div>
+      <div>• Move mouse to look around, or</div>
+      <div>• Arrow keys to look around</div>
+      <div>• Press ESC to regain mouse control</div>
+    </div>
 
-varying vec2 v_texcoord;
-varying float v_dist;
+    <!-- New bottom action buttons -->
+    <div class="bottom-actions">
+      <a
+        href="#"
+        class="action-btn"
+        onclick="toggleLinkDrawer(); return false;"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+          <path
+            d="M96 160C96 142.3 110.3 128 128 128L512 128C529.7 128 544 142.3 544 160C544 177.7 529.7 192 512 192L128 192C110.3 192 96 177.7 96 160zM96 320C96 302.3 110.3 288 128 288L512 288C529.7 288 544 302.3 544 320C544 337.7 529.7 352 512 352L128 352C110.3 352 96 337.7 96 320zM544 480C544 497.7 529.7 512 512 512L128 512C110.3 512 96 497.7 96 480C96 462.3 110.3 448 128 448L512 448C529.7 448 544 462.3 544 480z"
+          />
+        </svg>
+        LINKS
+      </a>
+      <a
+        href="https://github.com/matthewcaminiti"
+        target="_blank"
+        class="action-btn"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+          <path
+            d="M237.9 461.4C237.9 463.4 235.6 465 232.7 465C229.4 465.3 227.1 463.7 227.1 461.4C227.1 459.4 229.4 457.8 232.3 457.8C235.3 457.5 237.9 459.1 237.9 461.4zM206.8 456.9C206.1 458.9 208.1 461.2 211.1 461.8C213.7 462.8 216.7 461.8 217.3 459.8C217.9 457.8 216 455.5 213 454.6C210.4 453.9 207.5 454.9 206.8 456.9zM251 455.2C248.1 455.9 246.1 457.8 246.4 460.1C246.7 462.1 249.3 463.4 252.3 462.7C255.2 462 257.2 460.1 256.9 458.1C256.6 456.2 253.9 454.9 251 455.2zM316.8 72C178.1 72 72 177.3 72 316C72 426.9 141.8 521.8 241.5 555.2C254.3 557.5 258.8 549.6 258.8 543.1C258.8 536.9 258.5 502.7 258.5 481.7C258.5 481.7 188.5 496.7 173.8 451.9C173.8 451.9 162.4 422.8 146 415.3C146 415.3 123.1 399.6 147.6 399.9C147.6 399.9 172.5 401.9 186.2 425.7C208.1 464.3 244.8 453.2 259.1 446.6C261.4 430.6 267.9 419.5 275.1 412.9C219.2 406.7 162.8 398.6 162.8 302.4C162.8 274.9 170.4 261.1 186.4 243.5C183.8 237 175.3 210.2 189 175.6C209.9 169.1 258 202.6 258 202.6C278 197 299.5 194.1 320.8 194.1C342.1 194.1 363.6 197 383.6 202.6C383.6 202.6 431.7 169 452.6 175.6C466.3 210.3 457.8 237 455.2 243.5C471.2 261.2 481 275 481 302.4C481 398.9 422.1 406.6 366.2 412.9C375.4 420.8 383.2 435.8 383.2 459.3C383.2 493 382.9 534.7 382.9 542.9C382.9 549.4 387.5 557.3 400.2 555C500.2 521.8 568 426.9 568 316C568 177.3 455.5 72 316.8 72zM169.2 416.9C167.9 417.9 168.2 420.2 169.9 422.1C171.5 423.7 173.8 424.4 175.1 423.1C176.4 422.1 176.1 419.8 174.4 417.9C172.8 416.3 170.5 415.6 169.2 416.9zM158.4 408.8C157.7 410.1 158.7 411.7 160.7 412.7C162.3 413.7 164.3 413.4 165 412C165.7 410.7 164.7 409.1 162.7 408.1C160.7 407.5 159.1 407.8 158.4 408.8zM190.8 444.4C189.2 445.7 189.8 448.7 192.1 450.6C194.4 452.9 197.3 453.2 198.6 451.6C199.9 450.3 199.3 447.3 197.3 445.4C195.1 443.1 192.1 442.8 190.8 444.4zM179.4 429.7C177.8 430.7 177.8 433.3 179.4 435.6C181 437.9 183.7 438.9 185 437.9C186.6 436.6 186.6 434 185 431.7C183.6 429.4 181 428.4 179.4 429.7z"
+          />
+        </svg>
+        GITHUB
+      </a>
+      <a
+        href="https://www.linkedin.com/in/matthew-caminiti/"
+        target="_blank"
+        class="action-btn"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+          <path
+            d="M512 96L127.9 96C110.3 96 96 110.5 96 128.3L96 511.7C96 529.5 110.3 544 127.9 544L512 544C529.6 544 544 529.5 544 511.7L544 128.3C544 110.5 529.6 96 512 96zM231.4 480L165 480L165 266.2L231.5 266.2L231.5 480L231.4 480zM198.2 160C219.5 160 236.7 177.2 236.7 198.5C236.7 219.8 219.5 237 198.2 237C176.9 237 159.7 219.8 159.7 198.5C159.7 177.2 176.9 160 198.2 160zM480.3 480L413.9 480L413.9 376C413.9 351.2 413.4 319.3 379.4 319.3C344.8 319.3 339.5 346.3 339.5 374.2L339.5 480L273.1 480L273.1 266.2L336.8 266.2L336.8 295.4L337.7 295.4C346.6 278.6 368.3 260.9 400.6 260.9C467.8 260.9 480.3 305.2 480.3 362.8L480.3 480z"
+          />
+        </svg>
+        LINKEDIN
+      </a>
+      <a href="mailto:matthew.z.caminiti@gmail.com" class="action-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+          <path
+            d="M112 128C85.5 128 64 149.5 64 176C64 191.1 71.1 205.3 83.2 214.4L291.2 370.4C308.3 383.2 331.7 383.2 348.8 370.4L556.8 214.4C568.9 205.3 576 191.1 576 176C576 149.5 554.5 128 528 128L112 128zM64 260L64 448C64 483.3 92.7 512 128 512L512 512C547.3 512 576 483.3 576 448L576 260L377.6 408.8C343.5 434.4 296.5 434.4 262.4 408.8L64 260z"
+          />
+        </svg>
+        EMAIL
+      </a>
+    </div>
 
-void main() {
-	gl_FragColor = texture2D(u_texture, v_texcoord) * v_dist;
-}
-</script>
-<script>
-const toggleLinkDrawer = () => {
-	const linkDrawer = document.getElementById("links")
-	if (linkDrawer.style.width === "250px")
-		linkDrawer.style.width = "0"
-	else
-		linkDrawer.style.width = "250px"
-}
-const openLinks = () => {
-	document.getElementById("links").style.width = "250px"
-}
+    <canvas id="canvas" width="400" height="300" tabindex="0"></canvas>
+    <script id="v-plainColor" type="x-shader/x-vector">
+      attribute vec2 a_position;
 
-const closeLinks = () => {
-	document.getElementById("links").style.width = "0"
-}
+      uniform vec2 u_resolution;
 
-const accordions = document.getElementsByClassName("accordion")
+      void main() {
+      	vec2 clipSpace = (a_position / u_resolution * 2.0) - 1.0;
+      	gl_Position = vec4(clipSpace.x, clipSpace.y * -1.0, 0, 1);
+      }
+    </script>
+    <script id="f-plainColor" type="x-shader/x-fragment">
+      precision mediump float;
 
-for (let i = 0; i < accordions.length; i++) {
-	accordions[i].addEventListener("click", () => {
-		accordions[i].classList.toggle("active")
+      uniform vec4 u_color;
+      void main() {
+      	gl_FragColor = u_color;
+      }
+    </script>
+    <script id="v-walls" type="x-shader/x-vector">
+      attribute vec2 a_position;
+      attribute vec2 a_texcoord;
+      attribute float a_dist;
 
-		const panel = accordions[i].nextElementSibling
-		panel.style.display = panel.style.display === "block" ? "none" : "block"
-	})
-}
-</script>
-<body>
+      uniform vec2 u_resolution;
 
+      varying vec2 v_texcoord;
+      varying float v_dist;
+
+      void main() {
+      	vec2 clipSpace = (a_position / u_resolution * 2.0) - 1.0;
+
+      	gl_Position = vec4(clipSpace.x, clipSpace.y * -1.0, 0, 1);
+
+      	v_texcoord = a_texcoord;
+      	v_dist = a_dist;
+      }
+    </script>
+    <script id="f-walls" type="x-shader/x-fragment">
+      precision mediump float;
+
+      uniform sampler2D u_texture;
+
+      varying vec2 v_texcoord;
+      varying float v_dist;
+
+      void main() {
+      	gl_FragColor = texture2D(u_texture, v_texcoord) * v_dist;
+      }
+    </script>
+    <script>
+      const toggleLinkDrawer = () => {
+        const linkDrawer = document.getElementById('links');
+        if (linkDrawer.style.width === '250px') linkDrawer.style.width = '0';
+        else linkDrawer.style.width = '250px';
+      };
+      const openLinks = () => {
+        document.getElementById('links').style.width = '250px';
+      };
+
+      const closeLinks = () => {
+        document.getElementById('links').style.width = '0';
+      };
+
+      const accordions = document.getElementsByClassName('accordion');
+
+      for (let i = 0; i < accordions.length; i++) {
+        accordions[i].addEventListener('click', () => {
+          accordions[i].classList.toggle('active');
+
+          const panel = accordions[i].nextElementSibling;
+          panel.style.display =
+            panel.style.display === 'block' ? 'none' : 'block';
+        });
+      }
+    </script>
+  </body>
+</html>

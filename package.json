@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-	"dev": "webpack -w --mode=development",
-	"build:dev": "webpack --mode=development",
-	"build:prod": "webpack --mode=production"
+    "dev": "webpack -w --mode=development",
+    "build:dev": "webpack --mode=development",
+    "build:prod": "webpack --mode=production",
+    "format": "prettier --write \"**/*.{ts,tsx,md,html}\""
   },
   "license": "ISC",
   "devDependencies": {
+    "prettier": "^3.6.2",
     "ts-loader": "^9.4.2",
     "typescript": "^4.9.5",
     "webpack": "^5.76.2",
